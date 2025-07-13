@@ -11,7 +11,7 @@ import { inputList, inputObject } from '../formConfigs/signupFormConfig';
 const SignupPage = () => {
   const { changeHandler, inputs, blurHandler, validateAll } =
     useForm(inputObject);
-
+  //TODO: add form validation
   const buttonDisabled = validateAll() ? false : true;
   return (
     <>
