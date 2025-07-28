@@ -7,12 +7,45 @@ import Button from '../components/Button/Button';
 import CustomIconButton from '../components/IconButton/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import useForm from '../hooks/useForm';
+import Banner from '../components/Alert/Banner';
+import { useEffect } from 'react';
+
 import { inputList, inputObject } from '../formConfigs/signupFormConfig';
+import Loader from '../components/Loader/Loader';
 const SignupPage = () => {
-  const { changeHandler, inputs, blurHandler, validateAll } =
-    useForm(inputObject);
-  //TODO: add form validation
+  const {
+    changeHandler,
+    inputs,
+    blurHandler,
+    validateAll,
+    formSubmissionHandler,
+    loading,
+    data,
+    error,
+  } = useForm(inputObject);
   const buttonDisabled = validateAll() ? false : true;
+
+  const bannerVisible = data || error;
+  const bannerType = error ? 'error' : 'success';
+  const alertMessage = error
+    ? error
+    : `User ${data?.username} created successfully!, please go to login page `;
+
+  const alert = (
+    <Banner
+      sx={{ marginTop: '20px' }}
+      severity={bannerType}
+      visible={bannerVisible}
+      message={alertMessage}
+    />
+  );
+
+  useEffect(() => {
+    document.body.classList.add('login-body');
+    return () => {
+      document.body.classList.remove('login-body');
+    };
+  }, []);
   return (
     <>
       <CustomIconButton
@@ -39,7 +72,12 @@ const SignupPage = () => {
         >
           Create an account
         </Typography>
-        <Form id="signup">
+        <Form
+          method="post"
+          onSubmit={(e) =>
+            formSubmissionHandler(e, 'http://localhost:3000/auth/register')
+          }
+        >
           <Box
             sx={{
               maxWidth: '800px',
@@ -73,6 +111,7 @@ const SignupPage = () => {
                     {...item}
                     name={item.name}
                     fullWidth
+                    value={inputs[item.name].value}
                     // error={false}
                     error={inputs[item.name].error ? true : undefined}
                     helperText={
@@ -90,17 +129,22 @@ const SignupPage = () => {
             ))}
 
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                btnName="Create"
-                disabled={buttonDisabled}
-                sx={{ marginTop: '20px', padding: '14px 30px' }}
-              >
-                Sign Up
-              </Button>
+              {!loading ? (
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  btnName="Create"
+                  disabled={buttonDisabled}
+                  sx={{ marginTop: '20px', padding: '14px 30px' }}
+                >
+                  Sign Up
+                </Button>
+              ) : (
+                <Loader />
+              )}
             </Box>
+            {alert}
           </Box>
         </Form>
       </Container>

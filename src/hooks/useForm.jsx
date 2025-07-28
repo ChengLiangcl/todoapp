@@ -1,5 +1,6 @@
 import { useState } from 'react';
-
+import { postRequest } from '../util/http';
+import useApiRequest from '../hooks/useApiRequest';
 /**
  * Custom hook for managing form inputs with validation.
  *
@@ -17,6 +18,7 @@ import { useState } from 'react';
 const useForm = (initialInputs) => {
   const [inputs, setInputs] = useState(initialInputs);
   const [touched, setTouched] = useState({});
+  const { sendRequest, error, data, loading } = useApiRequest(postRequest);
 
   // Handle input value change
   const changeHandler = (e) => {
@@ -25,7 +27,7 @@ const useForm = (initialInputs) => {
     setInputs((prevInputs) => {
       const field = prevInputs[name];
       const isTouched = touched[name] ?? false;
-      const isValid = field.validationFn
+      const isValid = field?.validationFn
         ? field.validationFn(value, prevInputs)
         : true;
 
@@ -42,7 +44,6 @@ const useForm = (initialInputs) => {
     });
   };
 
-  // Handle input blur (field loses focus)
   const blurHandler = (e) => {
     const { name, value } = e.target;
 
@@ -70,8 +71,44 @@ const useForm = (initialInputs) => {
 
   const validateAll = () => {
     return Object.values(inputs).every(
-      (input) => !inputs.error && input.value != ''
+      (input) => !input.error && input.value !== ''
     );
+  };
+
+  const formReset = () => {
+    const resetInputs = Object.entries(initialInputs).reduce(
+      (acc, [key, field]) => {
+        acc[key] = {
+          ...field,
+          value: '',
+          error: false,
+          helperText: '',
+        };
+        return acc;
+      },
+      {}
+    );
+    setInputs(resetInputs);
+    setTouched({});
+  };
+
+  const getFormData = (e) => {
+    const formData = new FormData(e.target);
+    return Object.fromEntries(formData.entries());
+  };
+
+  const formSubmissionHandler = async (e, url) => {
+    e.preventDefault();
+
+    console.log('asdasdasd');
+
+    const formData = getFormData(e);
+    try {
+      await sendRequest(url, formData);
+      formReset();
+    } catch (error) {
+      return error;
+    }
   };
 
   return {
@@ -82,6 +119,11 @@ const useForm = (initialInputs) => {
     changeHandler,
     blurHandler,
     validateAll,
+    getFormData,
+    formSubmissionHandler,
+    error,
+    data,
+    loading,
   };
 };
 

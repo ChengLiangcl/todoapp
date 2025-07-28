@@ -3,20 +3,20 @@ const postRequest = async (url, data, headers = {}) => {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
-        'content/type': 'application/json',
+        'Content-Type': 'application/json', // MUST be this exact string
         ...headers,
       },
       body: JSON.stringify(data),
     });
-    return await response.json();
+    if (!response.ok) {
+      const responseBody = await response.json();
+      throw new Error(responseBody.message);
+    }
+    return response.json();
   } catch (error) {
     throw error;
   }
 };
-
-const check = async (url, data, header={})=>{
-
-}
 const getRequest = async (url, headers = {}) => {
   try {
     const response = await fetch(url, {
@@ -48,4 +48,4 @@ const putPost = async (url, data, headers = {}) => {
   }
 };
 
-export { postRequest };
+export { postRequest, getRequest, putPost };

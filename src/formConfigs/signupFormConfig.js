@@ -9,6 +9,8 @@ import {
   passwordsMatch,
 } from '../util/validaiton';
 
+import { inputReducer } from '../util/helper';
+
 const inputList = [
   {
     type: 'text',
@@ -44,22 +46,9 @@ const inputList = [
     name: 'confirmPassword',
     Icon: CheckCircleOutlineIcon,
     validationFn: passwordsMatch,
-    helperText: 'Password is not mathced',
+    helperText: 'Password is not match',
   },
 ];
-const inputObject = inputList.reduce(
-  (acc, { name, validationFn, helperText }) => {
-    return {
-      ...acc,
-      [name]: {
-        validationFn,
-        helperText,
-        error: false,
-        value: '',
-      },
-    };
-  },
-  {}
-);
+const inputObject = inputReducer(inputList);
 
 export { inputList, inputObject };
