@@ -14,18 +14,16 @@ const userSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
+    password: {
+      type: String,
+      required: true,
+    },
     email: {
       type: String,
       required: true,
       unique: true,
       trim: true,
     },
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
     isDeleted: {
       type: Boolean,
       default: false,
@@ -34,6 +32,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: 'user',
       enum: ['user', 'admin'],
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
     },
   },
   {

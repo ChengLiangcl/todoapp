@@ -1,7 +1,5 @@
 require('dotenv').config();
 
-const { json } = require('express');
-const { MongoClient } = require('mongodb');
 const { default: mongoose } = require('mongoose');
 
 const connectDB = async (req, res) => {

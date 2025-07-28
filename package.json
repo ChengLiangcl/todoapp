@@ -5,17 +5,23 @@
   "main": "app.js",
   "scripts": {
     "start": "nodemon app.js",
-    "test": "jest"
+    "test": "jest --coverage"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "nodemon": "^3.1.10",
     "nodeom": "^0.0.1",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "jest": "^30.0.2",
+    "jest": "^30.0.5",
     "supertest": "^7.1.1"
   }
 }
