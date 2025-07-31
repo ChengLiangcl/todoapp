@@ -10,6 +10,14 @@ const todoSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    startDate: {
+      type: Date,
+      required: true,
+    },
+    dueDate: {
+      type: Date,
+      required: true,
+    },
     isCompleted: {
       type: Boolean,
       default: false,
@@ -26,4 +34,5 @@ const todoSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model('Todo', todoSchema);
+const Todo = mongoose.model('Todo', todoSchema);
+module.exports = Todo;

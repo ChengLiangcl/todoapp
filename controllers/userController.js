@@ -3,7 +3,6 @@ const bcrypt = require('bcryptjs');
 const { registerSchema } = require('../validation/user');
 exports.getAllUsers = async (req, res) => {
   try {
-    console.log(req.user);
     if (req.user.role !== 'admin')
       return res.status(403).json({
         message: 'You are not admin, you can not access all the user info',
