@@ -17,29 +17,64 @@ export default function ModalButton({
   modalHeight = '50%',
   title = 'Modal Title',
   formId,
+  onSubmit,
+  reset,
 }) {
   const [open, setOpen] = useState(false);
-
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-  const formHandler = (e) => {
-    e.preventDefault();
-
-    // ✅ Use e.currentTarget to get the <form> element safely
-    const formElement = e.currentTarget;
-    console.log('Form Element:', formElement);
-
-    // Example: Get all form data
-    const formData = new FormData(formElement);
-    console.log(formData);
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
-
-    setOpen(false);
-  };
-
+  const handleClose = () =>
+    setOpen((prev) => {
+      setOpen(false);
+      if (typeof reset === 'function') {
+        reset();
+      }
+    });
+  const modalFormContent = (
+    <form
+      id={formId || 'todoForm'}
+      method="POST"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        flexGrow: 1,
+        overflow: 'hidden',
+      }}
+      onSubmit={onSubmit}
+    >
+      <Box
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          overflowY: 'auto',
+        }}
+      >
+        {children}
+      </Box>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          p: 2,
+          borderTop: '1px solid #ddd',
+          flexShrink: 0,
+        }}
+      >
+        <Button
+          btnName="Close"
+          color="error"
+          variant="contained"
+          onClick={handleClose}
+        />
+        <Button
+          btnName="Confirm"
+          color="primary"
+          variant="contained"
+          type="submit"
+        />
+      </Box>
+    </form>
+  );
   return (
     <div style={btnDivStyle}>
       <Button
@@ -49,7 +84,16 @@ export default function ModalButton({
         sx={buttonStyle}
       />
 
-      <Modal open={open} onClose={handleClose}>
+      <Modal
+        open={open}
+        onClose={(_, reason) => {
+          if (reason === 'backdropClick') {
+            // Do nothing -> prevents closing when clicking outside
+            return;
+          }
+          handleClose();
+        }}
+      >
         <Box
           sx={{
             position: 'absolute',
@@ -66,7 +110,6 @@ export default function ModalButton({
             outline: 'none',
           }}
         >
-          {/* Header */}
           <Box
             sx={{
               display: 'flex',
@@ -82,54 +125,7 @@ export default function ModalButton({
               <CloseIcon />
             </IconButton>
           </Box>
-
-          {/* Form */}
-          <form
-            id={formId || 'todoForm'}
-            onSubmit={formHandler}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              flexGrow: 1,
-              overflow: 'hidden',
-            }}
-          >
-            {/* Scrollable content */}
-            <Box
-              sx={{
-                flexGrow: 1,
-                p: 3,
-                overflowY: 'auto',
-              }}
-            >
-              {children}
-            </Box>
-
-            {/* Footer */}
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                p: 2,
-                borderTop: '1px solid #ddd',
-                flexShrink: 0,
-              }}
-            >
-              <Button
-                btnName="Close"
-                color="error"
-                variant="contained"
-                onClick={handleClose}
-              />
-              <Button
-                btnName="Confirm"
-                color="primary"
-                variant="contained"
-                type="submit"
-              />
-            </Box>
-          </form>
+          {modalFormContent}
         </Box>
       </Modal>
     </div>

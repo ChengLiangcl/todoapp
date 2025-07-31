@@ -8,8 +8,6 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
-import Textarea from '@mui/joy/Textarea';
-
 const Input = ({
   type = 'text',
   id,
@@ -21,6 +19,7 @@ const Input = ({
   autoComplete,
   validationFn, // keep to use internally or just omit it here
   options,
+  variant = 'outlined',
   ...restProps // renamed from props to make clear
 }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -72,13 +71,16 @@ const Input = ({
 
   if (type === 'textarea') {
     return (
-      <Textarea
-        sx={{ width: '100%' }}
-        placeholder={placeholder}
-        {...restProps}
+      <TextField
         label={label}
-        minRows={4} // ✅ shows 4 lines initially
+        multiline
+        minRows={4}
         maxRows={8}
+        error={error}
+        helperText={helperText}
+        fullWidth
+        variant={variant}
+        {...restProps}
       />
     );
   }

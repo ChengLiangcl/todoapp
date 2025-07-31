@@ -99,9 +99,9 @@ const useForm = (initialInputs) => {
 
   const formSubmissionHandler = async (e, url) => {
     e.preventDefault();
-
-    console.log('asdasdasd');
-
+    if (!validateAll()) {
+      return;
+    }
     const formData = getFormData(e);
     try {
       await sendRequest(url, formData);

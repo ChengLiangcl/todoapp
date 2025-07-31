@@ -72,9 +72,7 @@ const LoginPage = () => {
       </Typography>
       <Form
         method="POST"
-        onSubmit={(e) =>
-          formSubmissionHandler(e, 'http://localhost:3000/auth/login')
-        }
+        onSubmit={(e) => formSubmissionHandler(e, 'auth/login')}
       >
         <Box
           sx={{

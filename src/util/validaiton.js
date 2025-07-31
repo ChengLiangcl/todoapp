@@ -10,3 +10,17 @@ export const isStrongPassword = (value, inputs) =>
 
 export const passwordsMatch = (confirmPassword, inputs) =>
   confirmPassword === inputs.password?.value;
+
+export const validateStartAndEndDate = (startDate, endDate) => {
+  if (!startDate || !endDate) return false;
+
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const isSameDay =
+    start.getFullYear() === end.getFullYear() &&
+    start.getMonth() === end.getMonth() &&
+    start.getDate() === end.getDate();
+
+  if (isSameDay) return false;
+  return start < end;
+};
