@@ -4,9 +4,8 @@ const inputReducer = (inputList) => {
       ...acc,
       [name]: {
         value: '',
+        name,
         validationFn,
-        helperText,
-        error: false,
       },
     };
   }, {});

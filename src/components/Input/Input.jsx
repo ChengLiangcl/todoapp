@@ -8,24 +8,27 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
+import dayjs from 'dayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 const Input = ({
   type = 'text',
   id,
   label,
   icon,
   placeholder,
-  helperText,
   error,
   autoComplete,
   validationFn, // keep to use internally or just omit it here
   options,
   variant = 'outlined',
+  errorMessage,
   ...restProps // renamed from props to make clear
 }) => {
   const [showPassword, setShowPassword] = useState(false);
-
+  const [value, setValue] = React.useState(dayjs());
   const toggleVisibility = () => setShowPassword((prev) => !prev);
-
   if (type === 'password') {
     return (
       <TextField
@@ -33,8 +36,8 @@ const Input = ({
         label={label}
         type={showPassword ? 'text' : 'password'}
         error={error}
-        helperText={helperText}
         autoComplete={autoComplete || 'new-password'}
+        InputLabelProps={{ shrink: true }}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -77,11 +80,33 @@ const Input = ({
         minRows={4}
         maxRows={8}
         error={error}
-        helperText={helperText}
+        InputLabelProps={{ shrink: true }}
         fullWidth
         variant={variant}
         {...restProps}
       />
+    );
+  }
+
+  if (type === 'date') {
+    return (
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <DatePicker
+          minDate={dayjs()} // <-- Disallow dates before today
+          label={label}
+          value={value}
+          onChange={(newValue) => setValue(newValue)}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              type={'text'}
+              InputLabelProps={{ shrink: true }}
+              size="small"
+              sx={{ display: 'flex', flexGrow: 1 }}
+            />
+          )}
+        />
+      </LocalizationProvider>
     );
   }
 
@@ -91,7 +116,7 @@ const Input = ({
       label={label}
       type={type}
       error={error}
-      helperText={helperText}
+      InputLabelProps={{ shrink: true }}
       autoComplete={autoComplete || 'off'}
       {...restProps}
     />

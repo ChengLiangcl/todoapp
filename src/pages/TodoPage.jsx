@@ -11,7 +11,6 @@ import Button from '../components/Button/Button';
 import CardView from '../components/CardView/CardView';
 import MyDatePicker from '../components/DatePicker/DatePickers';
 import Uploader from '../components/Uploader/Uploader';
-
 import useForm from '../hooks/useForm';
 import { inputReducer } from '../util/helper';
 import { isRequired, validateStartAndEndDate } from '../util/validaiton';
@@ -45,7 +44,28 @@ const TodoPage = () => {
     },
   ];
 
-  const todoObject = inputReducer(todoInput);
+  const datePickerInput = [
+    {
+      label: 'Start date',
+      name: 'startDate',
+      type: 'date',
+      placeholder: 'Choose the todo start date',
+      helperText:
+        'The start date cannot be greater than or equal to the due date',
+      validationFn: validateStartAndEndDate,
+      Icon: DateRangeIcon,
+    },
+    {
+      label: 'End date',
+      name: 'endDate',
+      type: 'date',
+      placeholder: 'Choose the todo end date',
+      helperText: 'The description of your todo cannot be empty',
+      validationFn: validateStartAndEndDate,
+      Icon: DateRangeIcon,
+    },
+  ];
+  const todoObject = inputReducer([...todoInput, ...datePickerInput]);
   const {
     inputs,
     changeHandler,
@@ -148,29 +168,7 @@ const TodoPage = () => {
                 mb: 2,
               }}
             >
-              <DateRangeIcon
-                sx={{ minWidth: '40px', fontSize: '25px' }}
-                color="primary"
-              />
-              <MyDatePicker
-                label="Start date"
-                name="startDate"
-                validationFn={validateStartAndEndDate()}
-                onChange={setStartDate}
-                error={!isDateRangeInvalid ? true : false}
-                value={startDate}
-                helperText={
-                  !isDateRangeInvalid
-                    ? 'Start date must be before due date or cannot be the same'
-                    : undefined
-                }
-              />
-              <MyDatePicker
-                label="Due date"
-                name="dueDate"
-                value={dueDate}
-                onChange={setDueDate}
-              />
+              {datePickerInput.map(renderInput)}
             </Box>
           </Grid>
 

@@ -8,8 +8,9 @@ export const isStrongPassword = (value, inputs) =>
     value
   );
 
-export const passwordsMatch = (confirmPassword, inputs) =>
-  confirmPassword === inputs.password?.value;
+export const passwordsMatch = (confirmPassword, inputs) => {
+  return confirmPassword === inputs.password?.value;
+};
 
 export const validateStartAndEndDate = (startDate, endDate) => {
   if (!startDate || !endDate) return false;
