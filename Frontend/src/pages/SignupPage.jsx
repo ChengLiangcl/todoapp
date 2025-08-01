@@ -33,6 +33,7 @@ const SignupPage = () => {
 
   const bannerVisible = data || error;
   const bannerType = error ? 'error' : 'success';
+
   const alertMessage = error
     ? error
     : `User ${data?.username} created successfully!, please go to login page `;

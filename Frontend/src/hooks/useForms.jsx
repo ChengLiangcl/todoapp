@@ -46,8 +46,14 @@ const useForm = (initialValues, httpFn) => {
     if (!validateAll()) {
       return;
     }
+    try {
+      httpFn(url, form);
+    } catch (error) {
+      return;
+    }
+
     reset();
-    httpFn(url, form);
+
     return form;
   };
 
