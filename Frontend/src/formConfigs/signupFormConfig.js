@@ -128,13 +128,13 @@ const SignupPageInput = ({ inputs, errors, changeHandler, onBlurHandler }) => {
   ));
 };
 
-const Alert = ({ bannerType, bannerVisible, alertMessage }) => {
+const Alert = ({ severity, visible, message }) => {
   return (
     <Banner
       sx={{ marginTop: '20px' }}
-      severity={bannerType}
-      visible={bannerVisible}
-      message={alertMessage}
+      severity={severity}
+      visible={visible}
+      message={message}
     />
   );
 };
