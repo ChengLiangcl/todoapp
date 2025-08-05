@@ -4,11 +4,15 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { loginSchema, registerSchema } = require('../validation/user');
 
+const cleanJoiErrorMessage = require('../util/cleanJoiErrorMessage');
+
 exports.login = async (req, res) => {
   try {
-    const { error } = loginSchema.validate(req.body);
+    const { error } = loginSchema.validate(req.body, { abortEarly: false });
     if (error)
-      return res.status(400).json({ error: error.message, status: 500 });
+      return res
+        .status(400)
+        .json({ error: cleanJoiErrorMessage(error.message), status: 500 });
 
     const { username, password } = req.body;
     const user = await User.findOne({ username });
