@@ -24,7 +24,7 @@ jobs:
 
       - name: Run unit tests
         working-directory: ./Backend
-        run: npm run test:unit
+        run: npx run test:unit
 
       - name: Start backend server
         working-directory: ./Backend
@@ -44,4 +44,4 @@ jobs:
 
       - name: Run integration tests
         working-directory: ./Backend
-        run: npm run test:integration
+        run: npx run test:integration
