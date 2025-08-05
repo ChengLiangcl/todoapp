@@ -5,7 +5,9 @@
   "main": "app.js",
   "scripts": {
     "start": "nodemon app.js",
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "test:unit": "jest tests/unit",
+    "test:integration": "jest tests/integration"
   },
   "keywords": [],
   "author": "",
@@ -22,8 +24,6 @@
   },
   "devDependencies": {
     "jest": "^30.0.5",
-    "supertest": "^7.1.1",
-    "test:unit": "jest tests/unit",
-    "test:integration": "jest tests/integration"
+    "supertest": "^7.1.1"
   }
 }
