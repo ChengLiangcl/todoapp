@@ -18,9 +18,6 @@ jobs:
         with:
           node-version: 18
 
-      - name: Force use of public npm registry
-        run: npm config set registry https://registry.npmjs.org/
-
       - name: Install dependencies
         working-directory: ./Backend
         run: npm install
