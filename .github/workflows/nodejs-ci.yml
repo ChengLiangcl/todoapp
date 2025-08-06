@@ -1,4 +1,4 @@
-name: Run Backend Tests
+name: Run CI/CD Pipeline
 
 on:
   push:
@@ -17,6 +17,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+
+      - name: Force use of public npm registry
+        run: npm config set registry https://registry.npmjs.org/
 
       - name: Install dependencies
         working-directory: ./Backend
@@ -44,4 +47,4 @@ jobs:
 
       - name: Run integration tests
         working-directory: ./Backend
-        run: npx jest tests/integration
+        run: npx jest tests/integration --runInBand --ci --detectOpenHandles
