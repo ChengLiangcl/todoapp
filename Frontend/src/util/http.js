@@ -24,7 +24,7 @@ const getRequest = async (url, headers = {}) => {
     const response = await fetch(url, {
       method: 'GET',
       headers: {
-        'content/type': 'application/json',
+        'Content-Type': 'application/json',
         ...headers,
       },
     });
@@ -34,12 +34,12 @@ const getRequest = async (url, headers = {}) => {
   }
 };
 
-const putPost = async (url, data, headers = {}) => {
+const putRequest = async (url, data, headers = {}) => {
   try {
     const response = await fetch(url, {
       method: 'PUT',
       headers: {
-        'content/type': 'application/json',
+        'Content-Type': 'application/json',
         ...headers,
       },
       body: JSON.stringify(data),
@@ -50,4 +50,4 @@ const putPost = async (url, data, headers = {}) => {
   }
 };
 
-export { postRequest, getRequest, putPost };
+export { postRequest, getRequest, putRequest };
