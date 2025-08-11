@@ -20,7 +20,14 @@ exports.createTodo = async (req, res) => {
 
 exports.listAllTodosByUser = async (req, res) => {
   try {
-    user = req.user;
-    return res.status(200).json({ user });
-  } catch {}
+    const userId = req.user._id; // This is the user's ObjectId
+
+    const todos = await Todo.find({ user: userId }) // find todos with user field = userId
+      .populate('user') // populate the user info if you want
+      .exec();
+
+    return res.status(200).json(todos);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
 };
