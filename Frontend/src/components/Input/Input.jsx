@@ -17,6 +17,7 @@ const Input = ({
   id,
   label,
   icon,
+  Icon,
   placeholder,
   error,
   autoComplete,
@@ -24,6 +25,7 @@ const Input = ({
   options,
   variant = 'outlined',
   errorMessage,
+  name,
   ...restProps // renamed from props to make clear
 }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -38,6 +40,7 @@ const Input = ({
         error={error}
         autoComplete={autoComplete || 'new-password'}
         InputLabelProps={{ shrink: true }}
+        name={name}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -61,7 +64,7 @@ const Input = ({
     return (
       <>
         <InputLabel id={id}>{label}</InputLabel>
-        <Select value={restProps.value || ''} {...restProps}>
+        <Select name={name} value={restProps.value || ''} {...restProps}>
           {options.map((option, index) => (
             <MenuItem key={index} value={option}>
               {option}
@@ -78,6 +81,7 @@ const Input = ({
         label={label}
         multiline
         minRows={4}
+        name={name}
         maxRows={8}
         error={error}
         InputLabelProps={{ shrink: true }}
@@ -99,6 +103,7 @@ const Input = ({
           renderInput={(params) => (
             <TextField
               {...params}
+              name={name}
               type={'text'}
               InputLabelProps={{ shrink: true }}
               size="small"
@@ -118,6 +123,7 @@ const Input = ({
       error={error}
       InputLabelProps={{ shrink: true }}
       autoComplete={autoComplete || 'off'}
+      name={name}
       {...restProps}
     />
   );

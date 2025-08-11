@@ -29,6 +29,7 @@ const useForm = (initialValues, httpFn) => {
   };
 
   const validateAll = () => {
+    return true;
     return Object.entries(inputs).every(
       ([name, value]) => errors[name] === false && value !== ''
     );
@@ -46,6 +47,7 @@ const useForm = (initialValues, httpFn) => {
     if (!validateAll()) {
       return;
     }
+
     try {
       httpFn(url, form);
     } catch (error) {

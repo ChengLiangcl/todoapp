@@ -4,25 +4,24 @@ import Grid from '@mui/material/Grid';
 import TitleIcon from '@mui/icons-material/Title';
 import DescriptionIcon from '@mui/icons-material/Description';
 import DateRangeIcon from '@mui/icons-material/DateRange';
-
+import CustomizedPagination from '../components/Pagination/CustomizedPagination';
 import ModalButton from '../components/ModalButton/ModalButton';
 import Input from '../components/Input/Input';
 import Button from '../components/Button/Button';
 import CardView from '../components/CardView/CardView';
 import MyDatePicker from '../components/DatePicker/DatePickers';
 import Uploader from '../components/Uploader/Uploader';
-import useForm from '../hooks/useForm';
+import useForm from '../hooks/useForms';
 import { inputReducer } from '../util/helper';
 import { isRequired, validateStartAndEndDate } from '../util/validaiton';
 import dayjs from 'dayjs';
+import { postRequest } from '../util/http';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addTodo, fetchTodos } from '../store/todoSlice';
+import Loader from '../components/Loader/Loader';
 
 const TodoPage = () => {
-  const [startDate, setStartDate] = React.useState(dayjs());
-  const [dueDate, setDueDate] = React.useState(dayjs().add(1, 'day'));
-
-  // 2. Compare dates and decide if error exists
-  const isDateRangeInvalid = validateStartAndEndDate(startDate, dueDate);
-
   const todoInput = [
     {
       label: 'Todo Title',
@@ -57,7 +56,7 @@ const TodoPage = () => {
     },
     {
       label: 'End date',
-      name: 'endDate',
+      name: 'dueDate',
       type: 'date',
       placeholder: 'Choose the todo end date',
       helperText: 'The description of your todo cannot be empty',
@@ -65,18 +64,34 @@ const TodoPage = () => {
       Icon: DateRangeIcon,
     },
   ];
+  const dispatch = useDispatch();
+
+  const { todos, loading, error } = useSelector((state) => state.todo);
   const todoObject = inputReducer([...todoInput, ...datePickerInput]);
+  const handleAddTodo = (data) => dispatch(addTodo(data));
+
   const {
     inputs,
+    errors,
     changeHandler,
-    blurHandler,
-    formSubmissionHandler,
+    onBlurHandler,
+    onSubmit,
     resetInputs,
-  } = useForm(todoObject);
+  } = useForm(todoObject, postRequest);
+  useEffect(() => {
+    dispatch(fetchTodos());
+  }, [dispatch]);
 
-  // ✅ Reusable input renderer
+  if (loading) {
+    return <Loader>Fetching the todos...</Loader>;
+  }
+  console.log(loading);
+  if (error) {
+    return <h1>Something went wrong</h1>;
+  }
+
   const renderInput = (field) => {
-    const { Icon } = field;
+    const { Icon, name } = field;
     return (
       <Box
         key={field.name}
@@ -94,13 +109,11 @@ const TodoPage = () => {
         <Input
           {...field}
           fullWidth
-          error={inputs[field.name].error || undefined}
+          error={errors[name] || undefined}
           type={field.type}
-          helperText={
-            inputs[field.name].error ? inputs[field.name].helperText : ''
-          }
+          helperText={errors[name] ? field.helperText : ''}
           onChange={changeHandler}
-          onBlur={blurHandler}
+          onBlur={onBlurHandler}
         />
       </Box>
     );
@@ -154,7 +167,7 @@ const TodoPage = () => {
         }}
         btnDivStyle={{ display: 'flex', justifyContent: 'flex-end' }}
         title="Add Todo Item"
-        onSubmit={(e) => formSubmissionHandler(e, 'todos')}
+        onSubmit={(e) => onSubmit(e, 'todos')}
       >
         {todoInput.map(renderInput)}
 
@@ -177,15 +190,20 @@ const TodoPage = () => {
           </Grid> */}
         </Grid>
       </ModalButton>
-
-      {/* 🔹 Todo List */}
-      <Grid container spacing={3} sx={{ mt: 3 }}>
-        {[1, 2, 3, 4, 5, 6].map((item) => (
-          <Grid item xs={12} sm={6} md={3} key={item}>
-            <CardView />
-          </Grid>
-        ))}
-      </Grid>
+      <Box>
+        <Grid
+          container
+          spacing={3}
+          sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}
+        >
+          {todos.map((todo, index) => (
+            <Grid item xs={12} sm={6} md={3} key={index}>
+              <CardView title={todo.title} content={todo.content} />
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+      <CustomizedPagination />
     </>
   );
 };
