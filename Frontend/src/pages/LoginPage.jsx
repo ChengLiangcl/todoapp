@@ -5,7 +5,10 @@ import Input from '../components/Input/Input';
 import { Box, Typography, Container } from '@mui/material';
 import TextLink from '../components/TextLink/TextLink';
 import Button from '../components/Button/Button';
-import { inputList, inputObject } from '../formConfigs/loginFormConfig';
+import {
+  inputList,
+  inputObject,
+} from '../formConfigs/loginForm/loginFormConfig';
 import useForm from '../hooks/useForm';
 import Banner from '../components/Alert/Banner';
 import { useNavigate } from 'react-router-dom';

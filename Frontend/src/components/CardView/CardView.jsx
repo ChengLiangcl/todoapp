@@ -1,27 +1,29 @@
-import * as React from 'react';
+import React from 'react';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
-import Button from '../Button/Button';
-export default function CardView({ cardButton, title, content }) {
-  const defaultButton = [
-    { btnName: 'Delete', variant: 'contained', color: 'error' },
-    { btnName: 'Complete', variant: 'contained', color: 'success' },
-    { btnName: 'View', variant: 'contained', color: 'warning' },
-  ];
-  cardButton = cardButton || defaultButton;
+import TodoCardViewButtonGroup from './TodoCardViewButtonGroup';
 
+export default function CardView({
+  title,
+  content,
+  todo,
+  onDelete,
+  onUpdate,
+  onComplete,
+  id,
+}) {
   return (
-    <Card sx={{ maxWidth: 345 }}>
+    <Card sx={{ maxWidth: 345, margin: '20px' }}>
       <CardMedia
         sx={{ height: 140 }}
         image="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQnJBGVNQ7vcqT67zTdcZRTn1Ts968sB2cZnZqNU8L90SfL8lA3n_ahkpZWZl05pALHH3_sk_uTCLEQS314DG6mtQ"
         title="green iguana"
       />
       <CardContent>
-        <Typography gutterBottom variant="h5" component="div">
+        <Typography gutterBottom variant="h5">
           {title}
         </Typography>
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -29,16 +31,13 @@ export default function CardView({ cardButton, title, content }) {
         </Typography>
       </CardContent>
       <CardActions>
-        {cardButton.map((button, index) => {
-          return (
-            <Button
-              key={index}
-              btnName={button.btnName}
-              variant={button.variant}
-              color={button.color}
-            />
-          );
-        })}
+        <TodoCardViewButtonGroup
+          id={id}
+          onDelete={onDelete}
+          onComplete={onComplete}
+          onUpdate={onUpdate}
+          todo={todo}
+        />
       </CardActions>
     </Card>
   );

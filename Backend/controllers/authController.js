@@ -66,3 +66,12 @@ exports.createUser = async (req, res) => {
     return res.status(400).json({ message: error.message });
   }
 };
+
+exports.logout = async (req, res) => {
+  try {
+    res.clearCookie('token'); // if using cookies
+    res.status(200).json({ message: 'Logout successful' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
