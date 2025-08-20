@@ -57,7 +57,7 @@ const putRequest = async (url, data, headers = {}) => {
 
 const deleteRequest = async (url, headers = {}) => {
   try {
-    const response = await fetch(url, {
+    const response = await fetch(`${backendUrl}/${url}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

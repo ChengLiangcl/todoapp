@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">76.74% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>19/38</span>
+                <span class='fraction'>33/43</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">70% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>5/10</span>
+                <span class='fraction'>7/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">66.66% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/2</span>
+                <span class='fraction'>2/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">76.74% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>19/38</span>
+                <span class='fraction'>33/43</span>
             </div>
         
             
@@ -131,7 +131,16 @@
 <a name='L66'></a><a href='#L66'>66</a>
 <a name='L67'></a><a href='#L67'>67</a>
 <a name='L68'></a><a href='#L68'>68</a>
-<a name='L69'></a><a href='#L69'>69</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
@@ -178,20 +187,29 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -245,26 +263,35 @@ exports.login = async (req, res) =&gt; {
   }
 };
 &nbsp;
-exports.createUser = <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {
-<span class="cstat-no" title="statement not covered" >  try {</span>
-    let userInfo = <span class="cstat-no" title="statement not covered" >req.body;</span>
-    const { error } = <span class="cstat-no" title="statement not covered" >registerSchema.validate(userInfo);</span>
+exports.createUser = async (req, res) =&gt; {
+  try {
+    let userInfo = req.body;
+    const { error } = registerSchema.validate(userInfo);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    if (error)</span>
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (error)
 <span class="cstat-no" title="statement not covered" >      return res.status(400).json({ error: error.message, status: 500 });</span>
 &nbsp;
-    const saltRounds = <span class="cstat-no" title="statement not covered" >10;</span>
-    const hashedPassword = <span class="cstat-no" title="statement not covered" >await bcrypt.hash(userInfo.password, saltRounds);</span>
-<span class="cstat-no" title="statement not covered" >    userInfo.password = hashedPassword;</span>
-    const user = <span class="cstat-no" title="statement not covered" >await User.create(userInfo);</span>
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(userInfo.password, saltRounds);
+    userInfo.password = hashedPassword;
+    const user = await User.create(userInfo);
 <span class="cstat-no" title="statement not covered" >    return res.status(201).json(user);</span>
   } catch (error) {
-<span class="cstat-no" title="statement not covered" >    if (error.code === 11000) {</span>
-      let key = <span class="cstat-no" title="statement not covered" >Object.keys(error.keyValue)[0];</span>
-      let value = <span class="cstat-no" title="statement not covered" >error.keyValue[key];</span>
-<span class="cstat-no" title="statement not covered" >      error.message = `${key} ${value} already exists`;</span>
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (error.code === 11000) {
+      let key = Object.keys(error.keyValue)[0];
+      let value = error.keyValue[key];
+      error.message = `${key} ${value} already exists`;
     }
-<span class="cstat-no" title="statement not covered" >    return res.status(400).json({ message: error.message });</span>
+    return res.status(400).json({ message: error.message });
+  }
+};
+&nbsp;
+exports.logout = <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {
+<span class="cstat-no" title="statement not covered" >  try {</span>
+<span class="cstat-no" title="statement not covered" >    res.clearCookie('token'); </span>// if using cookies
+<span class="cstat-no" title="statement not covered" >    res.status(200).json({ message: 'Logout successful' });</span>
+  } catch (error) {
+<span class="cstat-no" title="statement not covered" >    res.status(500).json({ message: error.message });</span>
   }
 };
 &nbsp;</pre></td></tr></table></pre>
@@ -274,7 +301,7 @@ exports.createUser = <span class="fstat-no" title="function not covered" >as</sp
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-05T02:11:54.441Z
+                at 2025-08-15T06:11:47.780Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

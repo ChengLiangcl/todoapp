@@ -2,23 +2,23 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LockResetIcon from '@mui/icons-material/LockReset';
 import MailIcon from '@mui/icons-material/Mail';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import CustomIconButton from '../components/IconButton/IconButton';
+import CustomIconButton from '../../components/IconButton/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Typography } from '@mui/material';
 import { Box } from '@mui/material';
-import Input from '../components/Input/Input';
+import Input from '../../components/Input/Input';
 import React from 'react';
-import ErrorText from '../components/ErrorText/ErrorText';
+import ErrorText from '../../components/ErrorText/ErrorText';
 import {
   isRequired,
   isValidEmail,
   isStrongPassword,
   passwordsMatch,
-} from '../util/validaiton';
-import Banner from '../components/Alert/Banner';
-import Button from '../components/Button/Button';
+} from '../../util/validaiton';
+import Banner from '../../components/Alert/Banner';
+import Button from '../../components/Button/Button';
 
-import { inputReducer } from '../util/helper';
+import { inputReducer } from '../../util/helper';
 import { display } from '@mui/system';
 
 const inputList = [
