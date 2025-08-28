@@ -1,5 +1,5 @@
-import { isRequired } from '../util/validaiton';
-import { inputReducer } from '../util/helper';
+import { isRequired } from '../../util/validaiton';
+import { inputReducer } from '../../util/helper';
 const inputList = [
   {
     type: 'text',

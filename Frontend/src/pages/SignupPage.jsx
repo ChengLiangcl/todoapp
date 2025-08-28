@@ -12,7 +12,7 @@ import {
   SignupPageInput,
   Alert,
   SignupButton,
-} from '../formConfigs/signupFormConfig';
+} from '../formConfigs/signupForm/signupFormConfig';
 import useHttpRequest from '../hooks/useHttpRequest';
 import { postRequest } from '../util/http';
 

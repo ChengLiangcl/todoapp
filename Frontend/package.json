@@ -55,6 +55,8 @@
   "devDependencies": {
     "@babel/core": "^7.28.0",
     "@babel/plugin-proposal-optional-chaining": "^7.21.0",
-    "@babel/preset-env": "^7.28.0"
+    "@babel/preset-env": "^7.28.0",
+    "@reduxjs/toolkit": "^2.8.2",
+    "react-redux": "^9.2.0"
   }
 }

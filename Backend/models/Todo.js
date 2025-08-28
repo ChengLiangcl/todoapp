@@ -18,6 +18,14 @@ const todoSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    deletedAt: {
+      type: Date, // store the timestamp of deletion
+      default: null, // not deleted yet
+    },
     isCompleted: {
       type: Boolean,
       default: false,
