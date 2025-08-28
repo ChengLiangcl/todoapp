@@ -17,6 +17,7 @@ const useForm = (initialValues, httpFn) => {
     setTouched((prev) => {
       const updated = { ...prev, [name]: true };
 
+      console.log(initialValues);
       const validateResult =
         initialValues[name].validationFn(value, inputs) ?? true;
 
@@ -29,9 +30,10 @@ const useForm = (initialValues, httpFn) => {
   };
 
   const validateAll = () => {
-    return Object.entries(inputs).every(
-      ([name, value]) => errors[name] === false && value !== ''
-    );
+    return true;
+    // return Object.entries(inputs).every(
+    //   ([name, value]) => errors[name] === false && value !== ''
+    // );
   };
   const reset = () => {
     setInputs(initialValues);
@@ -46,6 +48,7 @@ const useForm = (initialValues, httpFn) => {
     if (!validateAll()) {
       return;
     }
+
     try {
       httpFn(url, form);
     } catch (error) {

@@ -1,191 +1,125 @@
-import * as React from 'react';
-import { Box, FormControl } from '@mui/material';
-import Grid from '@mui/material/Grid';
-import TitleIcon from '@mui/icons-material/Title';
-import DescriptionIcon from '@mui/icons-material/Description';
-import DateRangeIcon from '@mui/icons-material/DateRange';
+import React, { useEffect, useState } from 'react';
+import { Box, Typography } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 
+import CustomizedPagination from '../components/Pagination/CustomizedPagination';
+import TodoList from '../components/Todo/TodoList';
+import TodoModal from '../components/Todo/TodoModal';
+import TodoFilter from '../components/Todo/TodoFilter';
+import DeleteTodoDialog from '../components/Todo/DeleteTodoDialog';
+import Loader from '../components/Loader/Loader';
 import ModalButton from '../components/ModalButton/ModalButton';
-import Input from '../components/Input/Input';
-import Button from '../components/Button/Button';
-import CardView from '../components/CardView/CardView';
-import MyDatePicker from '../components/DatePicker/DatePickers';
-import Uploader from '../components/Uploader/Uploader';
-import useForm from '../hooks/useForm';
-import { inputReducer } from '../util/helper';
-import { isRequired, validateStartAndEndDate } from '../util/validaiton';
-import dayjs from 'dayjs';
+import { fetchTodos, deleteTodos } from '../store/todoSlice';
+import Banner from '../components/Alert/Banner';
 
 const TodoPage = () => {
-  const [startDate, setStartDate] = React.useState(dayjs());
-  const [dueDate, setDueDate] = React.useState(dayjs().add(1, 'day'));
+  const dispatch = useDispatch();
+  const { todos, loading, error, totalPage } = useSelector(
+    (state) => state.todo
+  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [selectedTodoId, setSelectedTodoId] = useState(null);
 
-  // 2. Compare dates and decide if error exists
-  const isDateRangeInvalid = validateStartAndEndDate(startDate, dueDate);
+  useEffect(() => {
+    dispatch(fetchTodos({ page: currentPage, limit: 9 }));
+  }, [dispatch, currentPage]);
 
-  const todoInput = [
-    {
-      label: 'Todo Title',
-      name: 'title',
-      type: 'text',
-      placeholder: 'Enter your todo title',
-      helperText: 'Please enter your todo title',
-      Icon: TitleIcon,
-      validationFn: isRequired,
-    },
-    {
-      label: 'Todo item Description',
-      name: 'content',
-      type: 'textarea',
-      placeholder: 'Enter your todo description',
-      helperText: 'The description of your todo cannot be empty',
-      validationFn: isRequired,
-      Icon: DescriptionIcon,
-    },
-  ];
-
-  const datePickerInput = [
-    {
-      label: 'Start date',
-      name: 'startDate',
-      type: 'date',
-      placeholder: 'Choose the todo start date',
-      helperText:
-        'The start date cannot be greater than or equal to the due date',
-      validationFn: validateStartAndEndDate,
-      Icon: DateRangeIcon,
-    },
-    {
-      label: 'End date',
-      name: 'endDate',
-      type: 'date',
-      placeholder: 'Choose the todo end date',
-      helperText: 'The description of your todo cannot be empty',
-      validationFn: validateStartAndEndDate,
-      Icon: DateRangeIcon,
-    },
-  ];
-  const todoObject = inputReducer([...todoInput, ...datePickerInput]);
-  const {
-    inputs,
-    changeHandler,
-    blurHandler,
-    formSubmissionHandler,
-    resetInputs,
-  } = useForm(todoObject);
-
-  // ✅ Reusable input renderer
-  const renderInput = (field) => {
-    const { Icon } = field;
-    return (
-      <Box
-        key={field.name}
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          mb: 2,
-          gap: '15px',
-          width: '100%',
-        }}
-      >
-        {Icon && (
-          <Icon sx={{ minWidth: '40px', fontSize: '25px' }} color="primary" />
-        )}
-        <Input
-          {...field}
-          fullWidth
-          error={inputs[field.name].error || undefined}
-          type={field.type}
-          helperText={
-            inputs[field.name].error ? inputs[field.name].helperText : ''
-          }
-          onChange={changeHandler}
-          onBlur={blurHandler}
-        />
-      </Box>
-    );
+  const handleDeleteClick = (id) => {
+    setSelectedTodoId(id);
+    setOpenDeleteDialog(true);
   };
+
+  const handleUpdate = (id) => {
+    setSelectedTodoId(id);
+  };
+
+  const handleCancelDelete = () => setOpenDeleteDialog(false);
+
+  const handleConfirmDelete = () => {
+    if (!selectedTodoId) return;
+    dispatch(deleteTodos(selectedTodoId));
+    setOpenDeleteDialog(false);
+  };
+
+  const renderEmptyContent = () => (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        mt: 5,
+      }}
+    >
+      <AssignmentTurnedInIcon
+        sx={{ fontSize: 50, color: 'primary.main', mb: 2 }}
+      />
+      <Typography variant="body1">
+        No todos found. Click <strong>"Add Todo Item"</strong> to create your
+        first one.
+      </Typography>
+    </Box>
+  );
+
+  if (loading) return <Loader>Please wait...</Loader>;
 
   return (
     <>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: { xs: 'column', sm: 'row' },
-          alignItems: { xs: 'stretch', sm: 'center' },
-          justifyContent: 'space-between',
-          gap: 2,
-          p: 2,
-          backgroundColor: '#fff',
-          borderRadius: 2,
-          boxShadow: 1,
-        }}
-      >
-        <FormControl sx={{ minWidth: 150 }} size="small">
-          <Input
-            options={['All', 'Work', 'Personal', 'Urgent']}
-            type="select"
-            label="Todo Category"
-            id="categoryFilter"
+      <TodoFilter />
+      {error && (
+        <Banner
+          sx={{ marginTop: '20px' }}
+          severity="error"
+          visible
+          message={error}
+        />
+      )}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+        <ModalButton buttonText="Add Todo Item">
+          <TodoModal
+            title="Add Todo Item"
+            dialogConfig={{
+              title: 'Are you sure you want to exit todo creation?',
+              content: 'Click Yes to create a record, No to exit the modal',
+            }}
           />
-        </FormControl>
-        <Input
-          variant="outlined"
-          size="small"
-          placeholder="Search keyword..."
-          sx={{ flexGrow: 1 }}
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ textTransform: 'none' }}
-          btnName="Apply Filter"
-        />
+        </ModalButton>
       </Box>
 
-      <ModalButton
-        buttonText="Add Todo Item"
-        formId="todoForm"
-        reset={resetInputs}
-        buttonStyle={{
-          textTransform: 'none',
-          marginTop: { xs: '10px' },
-          marginRight: '10px',
-        }}
-        btnDivStyle={{ display: 'flex', justifyContent: 'flex-end' }}
-        title="Add Todo Item"
-        onSubmit={(e) => formSubmissionHandler(e, 'todos')}
-      >
-        {todoInput.map(renderInput)}
+      {todos.length === 0 ? (
+        renderEmptyContent()
+      ) : (
+        <>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              pb: 5,
+            }}
+          >
+            <TodoList
+              todos={todos}
+              onDelete={handleDeleteClick}
+              onUpdate={handleUpdate}
+            />
+            <DeleteTodoDialog
+              open={openDeleteDialog}
+              onClose={handleCancelDelete}
+              onConfirm={handleConfirmDelete}
+            />
+          </Box>
 
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-                mb: 2,
-              }}
-            >
-              {datePickerInput.map(renderInput)}
-            </Box>
-          </Grid>
-
-          {/* <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
-            <Uploader />
-          </Grid> */}
-        </Grid>
-      </ModalButton>
-
-      {/* 🔹 Todo List */}
-      <Grid container spacing={3} sx={{ mt: 3 }}>
-        {[1, 2, 3, 4, 5, 6].map((item) => (
-          <Grid item xs={12} sm={6} md={3} key={item}>
-            <CardView />
-          </Grid>
-        ))}
-      </Grid>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+            <CustomizedPagination
+              count={totalPage}
+              currentPage={currentPage}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          </Box>
+        </>
+      )}
     </>
   );
 };
