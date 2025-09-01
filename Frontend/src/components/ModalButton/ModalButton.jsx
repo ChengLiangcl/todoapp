@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from '../Button/Button';
-
+import { useModal } from '../../context/ModalContext';
 export default function ModalButton({
   buttonText,
   children,
@@ -8,18 +8,22 @@ export default function ModalButton({
   btnDivStyle = {},
   id = null,
 }) {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const onOpen = () => setIsOpen(true);
-  const onClose = () => setIsOpen(false);
+  const clickHandler = () => {
+    if (React.isValidElement(children)) {
+      openModal(React.cloneElement(children));
+    }
+  };
 
-  const modalComponent = React.isValidElement(children)
-    ? React.cloneElement(children, { open: isOpen, onClose })
-    : null;
-
+  const { isModalOpen, openModal, modalContent } = useModal();
   return (
     <div style={btnDivStyle}>
-      <Button btnName={buttonText} id={id} onClick={onOpen} sx={buttonStyle} />
-      {modalComponent}
+      <Button
+        btnName={buttonText}
+        id={id}
+        onClick={clickHandler}
+        sx={buttonStyle}
+      />
+      {isModalOpen && modalContent}
     </div>
   );
 }

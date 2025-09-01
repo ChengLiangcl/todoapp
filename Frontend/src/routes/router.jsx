@@ -7,6 +7,7 @@ import DashBoard from '../pages/DashBoard';
 import Layout from '../pages/Layout';
 import { isLoggedIn } from '../util/auth';
 import TodoPage from '../pages/TodoPage';
+import { ModalProvider } from '../context/ModalContext';
 const router = createBrowserRouter([
   {
     path: '/login',
@@ -19,7 +20,11 @@ const router = createBrowserRouter([
   },
   {
     path: '/',
-    element: <Layout />,
+    element: (
+      <ModalProvider>
+        <Layout />
+      </ModalProvider>
+    ),
     loader: isLoggedIn,
     children: [
       {

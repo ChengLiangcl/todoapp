@@ -2,12 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Box, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-
 import CustomizedPagination from '../components/Pagination/CustomizedPagination';
 import TodoList from '../components/Todo/TodoList';
 import TodoModal from '../components/Todo/TodoModal';
 import TodoFilter from '../components/Todo/TodoFilter';
-import DeleteTodoDialog from '../components/Todo/DeleteTodoDialog';
 import Loader from '../components/Loader/Loader';
 import ModalButton from '../components/ModalButton/ModalButton';
 import { fetchTodos, deleteTodos } from '../store/todoSlice';
@@ -34,8 +32,6 @@ const TodoPage = () => {
   const handleUpdate = (id) => {
     setSelectedTodoId(id);
   };
-
-  const handleCancelDelete = () => setOpenDeleteDialog(false);
 
   const handleConfirmDelete = () => {
     if (!selectedTodoId) return;
@@ -103,11 +99,6 @@ const TodoPage = () => {
               todos={todos}
               onDelete={handleDeleteClick}
               onUpdate={handleUpdate}
-            />
-            <DeleteTodoDialog
-              open={openDeleteDialog}
-              onClose={handleCancelDelete}
-              onConfirm={handleConfirmDelete}
             />
           </Box>
 
