@@ -1,6 +1,12 @@
 import { Box } from '@mui/system';
 import Button from '../Button/Button';
-const ModalFormWrapper = ({ children, onSubmit, handleClose }) => {
+const ModalFormWrapper = ({
+  children,
+  onSubmit,
+  handleClose,
+  negativeBtn = 'Close',
+  positiveBtn = 'Confirm',
+}) => {
   return (
     <form
       method="POST"
@@ -35,13 +41,13 @@ const ModalFormWrapper = ({ children, onSubmit, handleClose }) => {
         }}
       >
         <Button
-          btnName="Close"
+          btnName={negativeBtn}
           color="error"
           variant="contained"
           onClick={handleClose}
         />
         <Button
-          btnName="Confirm"
+          btnName={positiveBtn}
           color="primary"
           variant="contained"
           type="submit"
