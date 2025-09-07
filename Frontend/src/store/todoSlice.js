@@ -105,8 +105,7 @@ const todoSlice = createSlice({
         const id = action.payload.id;
         state.todos = state.todos.filter((todo) => todo._id !== id);
         state.loading = false;
-        state.deletedTodo.shift();
-        state.deletedTodo.push(action.payload.data.message);
+        state.deletedTodo = [action.payload.data.message];
       })
       .addCase(deleteTodos.rejected, (state, action) => {
         state.loading = false;

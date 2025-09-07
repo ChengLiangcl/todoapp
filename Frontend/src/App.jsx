@@ -2,7 +2,6 @@ import React from 'react';
 import router from './routes/router';
 import { RouterProvider } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
-import { display } from '@mui/system';
 
 function App() {
   return (
