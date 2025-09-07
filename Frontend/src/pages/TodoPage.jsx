@@ -10,7 +10,8 @@ import Loader from '../components/Loader/Loader';
 import ModalButton from '../components/ModalButton/ModalButton';
 import { fetchTodos, addTodo } from '../store/todoSlice';
 import Banner from '../components/Alert/Banner';
-import useForm from '../hooks/useForms';
+import TodoNotifier from '../components/SnackBar/SnackBar';
+import { useSnackbar } from 'notistack';
 
 const TodoPage = () => {
   const dispatch = useDispatch();
@@ -19,6 +20,7 @@ const TodoPage = () => {
   );
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTodoId, setSelectedTodoId] = useState(null);
+  const { enqueueSnackbar } = useSnackbar(); // <- get snackbar here
 
   useEffect(() => {
     dispatch(fetchTodos({ page: currentPage, limit: 9 }));
@@ -67,15 +69,10 @@ const TodoPage = () => {
 
       {deletedTodo.map((item, index) => {
         return (
-          <Banner
-            key={index}
-            sx={{ marginTop: '20px' }}
-            severity="success"
-            visible
-            message={item}
-          />
+          <TodoNotifier key={index} sx={{ marginTop: '20px' }} message={item} />
         );
       })}
+
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
         <ModalButton
           buttonText="Add Todo Item"

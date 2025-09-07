@@ -12,16 +12,15 @@ export const passwordsMatch = (confirmPassword, inputs) => {
   return confirmPassword === inputs.password?.value;
 };
 
-export const validateStartAndEndDate = (startDate, endDate) => {
-  if (!startDate || !endDate) return false;
+export const validateDateComparison = (value, inputs, relatedField) => {
+  const otherValue = inputs[relatedField]?.value;
 
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  const isSameDay =
-    start.getFullYear() === end.getFullYear() &&
-    start.getMonth() === end.getMonth() &&
-    start.getDate() === end.getDate();
+  // If either is empty, don’t show error yet
+  if (!value || !otherValue) return true;
 
-  if (isSameDay) return false;
-  return start < end;
+  const currentDate = new Date(value);
+  const otherDate = new Date(otherValue);
+
+  // If current date should be before the other date
+  return currentDate < otherDate;
 };

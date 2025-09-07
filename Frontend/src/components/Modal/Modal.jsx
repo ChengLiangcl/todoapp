@@ -1,19 +1,21 @@
 import { Modal as MuiModal, Box, Typography, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useModal } from '../../context/ModalContext';
+import React from 'react';
 const Modal = ({
-  onClose,
   id = null,
   title = 'Modal Title',
   modalConfig = { modalWidth: '50%', modalHeight: '50%' },
   children,
 }) => {
-  const { isModalOpen, openDialog } = useModal();
-
+  const { modal, openDialog } = useModal();
+  const cancelHandler = () => {
+    openDialog();
+  };
   return (
     <>
       <MuiModal
-        open={isModalOpen}
+        open={modal.isOpen}
         slotProps={{
           backdrop: {
             sx: {
@@ -52,7 +54,7 @@ const Modal = ({
             <Typography id="modal-title" variant="h6">
               {title}
             </Typography>
-            <IconButton onClick={onClose} aria-label="close">
+            <IconButton onClick={cancelHandler} aria-label="close">
               <CloseIcon />
             </IconButton>
           </Box>

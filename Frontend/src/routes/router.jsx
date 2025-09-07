@@ -8,6 +8,8 @@ import Layout from '../pages/Layout';
 import { isLoggedIn } from '../util/auth';
 import TodoPage from '../pages/TodoPage';
 import { ModalProvider } from '../context/ModalContext';
+import { SnackbarProvider } from 'notistack';
+
 const router = createBrowserRouter([
   {
     path: '/login',

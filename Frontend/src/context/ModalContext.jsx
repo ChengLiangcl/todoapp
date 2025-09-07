@@ -1,61 +1,93 @@
-// context/ModalContext.js
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 const ModalContext = createContext();
 
+/**
+ * The ModalProvider component provides the ModalContext to its children,
+ * which can then access the modal and dialog state and functions.
+ *
+ * The ModalContext includes the following values:
+ *
+ * - `modal`: an object with 3 properties:
+ *   - `isOpen`: a boolean indicating whether the modal is open,
+ *   - `content`: the content of the modal, which will be rendered
+ *     inside the modal,
+ *   - `onConfirm`: an optional function that will be called when the
+ *     user clicks the "Confirm" button.
+ *
+ * - `openModal`: a function that opens the modal with the given content
+ *   and onConfirm function.
+ * - `closeModal`: a function that closes the modal.
+ *
+ * - `dialog`: an object with 3 properties:
+ *   - `isOpen`: a boolean indicating whether the dialog is open,
+ *   - `content`: the content of the dialog, which will be rendered
+ *     inside the dialog,
+ *   - `onConfirm`: an optional function that will be called when the
+ *     user clicks the "Confirm" button.
+ *
+ * - `openDialog`: a function that opens the dialog with the given content
+ *   and onConfirm function.
+ * - `closeDialog`: a function that closes the dialog.
+ * - `confirmDialog`: a function that calls the onConfirm function
+ *   and closes the dialog.
+ */
 export const ModalProvider = ({ children }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState(null);
+  const [modal, setModal] = useState({
+    isOpen: false,
+    onConfirm: null,
+  });
+  const [dialog, setDialog] = useState({
+    isOpen: false,
+    onConfirm: null,
+    title: null,
+    dialogContentText: null,
+  });
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [dialogContent, setDialogContent] = useState(null);
+  // Open modal
+  const openModal = (onConfirm = null) => setModal({ isOpen: true, onConfirm });
 
-  const openModal = (content) => {
-    setModalContent(content);
-    setIsModalOpen(true);
-  };
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setModalContent(null);
-  };
+  const closeModal = () => setModal({ isOpen: false, onConfirm: null });
 
-  const openDialog = useCallback(
-    (content) => {
-      setDialogContent(content);
-      setIsDialogOpen(true);
-    },
-    [setDialogContent, setIsDialogOpen]
-  );
+  // Open dialog
+  const openDialog = (onConfirm = null) =>
+    setDialog((prev) => ({ ...prev, isOpen: true, onConfirm }));
 
-  const closeDialog = () => {
-    setIsDialogOpen(false);
-    setDialogContent(null);
-  };
-
-  const closeModalWithDialog = () => {
-    setIsDialogOpen(true);
-  };
+  const closeDialog = () =>
+    setDialog({
+      isOpen: false,
+      onConfirm: null,
+      title: null,
+      dialogContentText: null,
+    });
 
   const confirmDialog = () => {
-    setIsDialogOpen(false);
-    setIsModalOpen(false);
-    setDialogContent(null);
-    setModalContent(null);
+    typeof dialog.onConfirm === 'function' && dialog.onConfirm();
+    setDialog((prev) => ({ ...prev, isOpen: false, onConfirm: null }));
+  };
+
+  const cancelDialog = () => {
+    setDialog((prev) => {
+      return {
+        ...prev,
+        isOpen: false,
+      };
+    });
   };
 
   return (
     <ModalContext.Provider
       value={{
-        isModalOpen,
-        modalContent,
+        modal,
         openModal,
         closeModal,
-        isDialogOpen,
-        dialogContent,
+        dialog,
+        setDialog,
+        cancelDialog,
         openDialog,
         closeDialog,
-        closeModalWithDialog,
         confirmDialog,
+        setModal,
       }}
     >
       {children}

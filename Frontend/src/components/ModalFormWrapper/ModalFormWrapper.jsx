@@ -1,5 +1,6 @@
 import { Box } from '@mui/system';
 import Button from '../Button/Button';
+import { useModal } from '../../context/ModalContext';
 const ModalFormWrapper = ({
   children,
   onSubmit,
@@ -7,6 +8,8 @@ const ModalFormWrapper = ({
   negativeBtn = 'Close',
   positiveBtn = 'Confirm',
 }) => {
+  const { modal, closeModal } = useModal();
+
   return (
     <form
       method="POST"
@@ -17,8 +20,11 @@ const ModalFormWrapper = ({
         overflow: 'hidden',
       }}
       onSubmit={(e) => {
+        console.log(modal.onConfirm);
+
         e.preventDefault();
-        onSubmit(e);
+        modal.onConfirm && modal.onConfirm(e);
+        closeModal();
       }}
     >
       <Box
@@ -44,7 +50,7 @@ const ModalFormWrapper = ({
           btnName={negativeBtn}
           color="error"
           variant="contained"
-          onClick={handleClose}
+          // onClick={clickHandler}
         />
         <Button
           btnName={positiveBtn}
