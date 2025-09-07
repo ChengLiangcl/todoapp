@@ -5,12 +5,13 @@ import TodoModal from '../Todo/TodoModal';
 import { useSelector } from 'react-redux';
 import { useModal } from '../../context/ModalContext';
 import { Alert } from '@mui/material';
-import AlertDialog from '../Dialog/Dialog';
 import { useCallback } from 'react';
+import { deleteTodos } from '../../store/todoSlice';
+import { useDispatch } from 'react-redux';
 const TodoCardViewButtonGroup = ({ onDelete, onComplete, id }) => {
   const { todos } = useSelector((state) => state.todo);
-  const { isDialogOpen, openDialog, dialogContent } = useModal();
-  // Load todo data for update modal
+  const { openDialog, dialogContent, setDialog } = useModal();
+  const dispatch = useDispatch();
   const loadTodoInfo = useCallback(() => {
     const currentTodo = todos.find((todo) => todo._id === id);
 
@@ -32,14 +33,16 @@ const TodoCardViewButtonGroup = ({ onDelete, onComplete, id }) => {
     <>
       <Button
         btnName="Delete"
+        id={id}
         onClick={() =>
           openDialog(
-            <AlertDialog
-              title={'Are you sure you want to delete this item?'}
-              dialogContentText={
-                'Choose Yes to delete this item, or No to cancel the action.'
-              }
-            />
+            () => dispatch(deleteTodos(id)),
+            setDialog((prev) => ({
+              ...prev,
+              isOpen: true,
+              title: 'Are you sure you want to delete this todo item?',
+              dialogContentText: 'Click confirm to delete and no to cancel',
+            }))
           )
         }
         sx={{
@@ -90,6 +93,7 @@ const TodoCardViewButtonGroup = ({ onDelete, onComplete, id }) => {
           loadTodoInfo={loadTodoInfo}
         />
       </ModalButton>
+      {dialogContent}
     </>
   );
 };

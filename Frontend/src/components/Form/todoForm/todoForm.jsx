@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Grid } from '@mui/material';
 import RenderInput from '../renderInput';
 import { Box } from '@mui/system';
 import { inputReducer } from '../../../util/helper';
 import useForm from '../../../hooks/useForms';
 import { todoFormFields, datePickerInput } from './todoFormConfig';
+import { useDispatch } from 'react-redux';
+import { addTodo } from '../../../store/todoSlice';
+import { useModal } from '../../../context/ModalContext';
 export default function TodoForm({ initialValues = {} }) {
+  const dispatch = useDispatch();
+  const { setModal } = useModal();
   let todoObject = {
     ...inputReducer([...todoFormFields, ...datePickerInput]),
   };
@@ -21,14 +26,26 @@ export default function TodoForm({ initialValues = {} }) {
     };
   }
 
-  const { errors, changeHandler, onBlurHandler, inputs } = useForm(todoObject);
+  const { errors, changeHandler, onBlurHandler, inputs, onSubmit } =
+    useForm(todoObject);
+
+  useEffect(() => {
+    setModal((prev) => ({
+      ...prev,
+      onConfirm: (e) => onSubmit(e, (form) => dispatch(addTodo(form))),
+    }));
+  }, [setModal, dispatch, onSubmit, inputs]);
+  useEffect(() => {
+    console.log('Inputs updated:', inputs);
+    console.log('Inputs updated:', inputs);
+  }, [inputs]);
   return (
     <>
       {todoFormFields.map((field) => (
         <RenderInput
           key={field.name}
           field={field}
-          value={inputs[field.name]?.value || ''} // <-- and here too
+          value={inputs[field.name]?.value || ''}
           errors={errors}
           changeHandler={changeHandler}
           onBlurHandler={onBlurHandler}

@@ -63,7 +63,9 @@ exports.deleteTodo = async (req, res) => {
     todo.isDeleted = true;
     todo.deletedAt = new Date();
     await todo.save();
-    return res.status(200).json({ message: 'Todo deleted successfully' });
+    return res
+      .status(200)
+      .json({ message: `Deleted todo with title ${todo.title} successfully` });
   } catch (error) {
     return res.status(500).json({ message: 'Server error' });
   }

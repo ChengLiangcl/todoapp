@@ -45,6 +45,7 @@ const todoSlice = createSlice({
     todos: [],
     totalPage: 0,
     limit: 0,
+    deletedTodo: [],
     loading: false,
     error: null,
   },
@@ -81,6 +82,7 @@ const todoSlice = createSlice({
       .addCase(addTodo.fulfilled, (state, action) => {
         state.loading = false;
         if (state.todos.length < state.limit) state.todos.push(action.payload);
+        else state.todos.page = state.todos.page + 1;
       })
       .addCase(addTodo.rejected, (state, action) => {
         state.loading = false;
@@ -103,6 +105,8 @@ const todoSlice = createSlice({
         const id = action.payload.id;
         state.todos = state.todos.filter((todo) => todo._id !== id);
         state.loading = false;
+        state.deletedTodo.shift();
+        state.deletedTodo.push(action.payload.data.message);
       })
       .addCase(deleteTodos.rejected, (state, action) => {
         state.loading = false;
