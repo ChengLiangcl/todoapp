@@ -8,16 +8,16 @@ import TodoModal from '../components/Todo/TodoModal';
 import TodoFilter from '../components/Todo/TodoFilter';
 import Loader from '../components/Loader/Loader';
 import ModalButton from '../components/ModalButton/ModalButton';
-import { fetchTodos, deleteTodos } from '../store/todoSlice';
+import { fetchTodos, addTodo } from '../store/todoSlice';
 import Banner from '../components/Alert/Banner';
+import useForm from '../hooks/useForms';
 
 const TodoPage = () => {
   const dispatch = useDispatch();
-  const { todos, loading, error, totalPage } = useSelector(
+  const { todos, loading, error, totalPage, deletedTodo } = useSelector(
     (state) => state.todo
   );
   const [currentPage, setCurrentPage] = useState(1);
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [selectedTodoId, setSelectedTodoId] = useState(null);
 
   useEffect(() => {
@@ -26,17 +26,10 @@ const TodoPage = () => {
 
   const handleDeleteClick = (id) => {
     setSelectedTodoId(id);
-    setOpenDeleteDialog(true);
   };
 
   const handleUpdate = (id) => {
     setSelectedTodoId(id);
-  };
-
-  const handleConfirmDelete = () => {
-    if (!selectedTodoId) return;
-    dispatch(deleteTodos(selectedTodoId));
-    setOpenDeleteDialog(false);
   };
 
   const renderEmptyContent = () => (
@@ -71,15 +64,29 @@ const TodoPage = () => {
           message={error}
         />
       )}
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-        <ModalButton buttonText="Add Todo Item">
-          <TodoModal
-            title="Add Todo Item"
-            dialogConfig={{
-              title: 'Are you sure you want to exit todo creation?',
-              content: 'Click Yes to create a record, No to exit the modal',
-            }}
+
+      {deletedTodo.map((item, index) => {
+        return (
+          <Banner
+            key={index}
+            sx={{ marginTop: '20px' }}
+            severity="success"
+            visible
+            message={item}
           />
+        );
+      })}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+        <ModalButton
+          buttonText="Add Todo Item"
+          isDialogRequired={true}
+          dialogConfig={{
+            title: 'Are you sure you want to exit to create a todo?',
+            dialogContentText:
+              'Click confirm to exit, if you click no changes will be saved.',
+          }}
+        >
+          <TodoModal title="Add Todo Item" />
         </ModalButton>
       </Box>
 
