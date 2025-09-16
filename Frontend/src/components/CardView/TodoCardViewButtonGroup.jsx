@@ -2,24 +2,12 @@ import React from 'react';
 import Button from '../Button/Button';
 import ModalButton from '../ModalButton/ModalButton';
 import TodoModal from '../Todo/TodoModal';
-import { useSelector } from 'react-redux';
 import { useModal } from '../../context/ModalContext';
-import { Alert } from '@mui/material';
-import { useCallback } from 'react';
-import { deleteTodos } from '../../store/todoSlice';
+import { deleteTodos, fetchTodos } from '../../store/todoSlice';
 import { useDispatch } from 'react-redux';
-const TodoCardViewButtonGroup = ({ onDelete, onComplete, id }) => {
-  const { todos } = useSelector((state) => state.todo);
-  const { openDialog, dialogContent, setDialog } = useModal();
+const TodoCardViewButtonGroup = ({ onComplete, id }) => {
+  const { modal, openDialog, setDialog } = useModal();
   const dispatch = useDispatch();
-  const loadTodoInfo = useCallback(() => {
-    const currentTodo = todos.find((todo) => todo._id === id);
-
-    if (!currentTodo) return {};
-    const { title, content, startDate, dueDate } = currentTodo;
-
-    return { title, content, startDate, dueDate };
-  }, [todos, id]);
 
   const hoverEffect = {
     transition: 'transform 0.2s ease, box-shadow 0.2s ease',
@@ -37,6 +25,7 @@ const TodoCardViewButtonGroup = ({ onDelete, onComplete, id }) => {
         onClick={() =>
           openDialog(
             () => dispatch(deleteTodos(id)),
+            dispatch(fetchTodos({ page: 1, limit: 9 })),
             setDialog((prev) => ({
               ...prev,
               isOpen: true,
@@ -72,6 +61,11 @@ const TodoCardViewButtonGroup = ({ onDelete, onComplete, id }) => {
       />
       <ModalButton
         id={id}
+        isDialogRequired={true}
+        dialogConfig={{
+          title: 'Are you sure you want to cancel update this todo item?',
+          dialogContentText: 'Click confirm to update and no to cancel',
+        }}
         buttonText="Update"
         buttonStyle={{
           ...hoverEffect,
@@ -83,17 +77,19 @@ const TodoCardViewButtonGroup = ({ onDelete, onComplete, id }) => {
             color: '#1976d2',
           },
         }}
-      >
+      />
+
+      {modal.isOpen && modal.modalId === id && (
         <TodoModal
+          id={id}
           title="Update Todo Item"
           dialogConfig={{
             title: 'Are you sure you want to exit update creation?',
             content: 'Click Yes to create a record, No to exit the modal',
           }}
-          loadTodoInfo={loadTodoInfo}
+          action={() => console.log('test')}
         />
-      </ModalButton>
-      {dialogContent}
+      )}
     </>
   );
 };

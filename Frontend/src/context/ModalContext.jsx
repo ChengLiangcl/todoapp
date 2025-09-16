@@ -36,6 +36,7 @@ export const ModalProvider = ({ children }) => {
   const [modal, setModal] = useState({
     isOpen: false,
     onConfirm: null,
+    modalId: null,
   });
   const [dialog, setDialog] = useState({
     isOpen: false,
@@ -45,9 +46,18 @@ export const ModalProvider = ({ children }) => {
   });
 
   // Open modal
-  const openModal = (onConfirm = null) => setModal({ isOpen: true, onConfirm });
+  const openModal = (onConfirm = null) => {
+    setModal((prev) => {
+      return {
+        ...prev,
+        isOpen: true,
+        onConfirm,
+      };
+    });
+  };
 
-  const closeModal = () => setModal({ isOpen: false, onConfirm: null });
+  const closeModal = () =>
+    setModal({ isOpen: false, onConfirm: null, modalId: null });
 
   // Open dialog
   const openDialog = (onConfirm = null) =>
@@ -64,6 +74,7 @@ export const ModalProvider = ({ children }) => {
   const confirmDialog = () => {
     typeof dialog.onConfirm === 'function' && dialog.onConfirm();
     setDialog((prev) => ({ ...prev, isOpen: false, onConfirm: null }));
+    setModal((prev) => ({ ...prev, isOpen: false, onConfirm: null }));
   };
 
   const cancelDialog = () => {

@@ -8,36 +8,35 @@ import { todoFormFields, datePickerInput } from './todoFormConfig';
 import { useDispatch } from 'react-redux';
 import { addTodo } from '../../../store/todoSlice';
 import { useModal } from '../../../context/ModalContext';
-export default function TodoForm({ initialValues = {} }) {
-  const dispatch = useDispatch();
+export default function TodoForm({ initialValues = {}, action }) {
   const { setModal } = useModal();
-  let todoObject = {
-    ...inputReducer([...todoFormFields, ...datePickerInput]),
-  };
-  if (Object.keys(initialValues).length > 0) {
-    todoObject = {
-      ...inputReducer([...todoFormFields, ...datePickerInput]),
-      ...Object.fromEntries(
-        Object.entries(initialValues || {}).map(([key, value]) => [
-          key,
-          { value },
-        ])
-      ),
-    };
-  }
 
-  const { errors, changeHandler, onBlurHandler, inputs, onSubmit } =
-    useForm(todoObject);
+  const {
+    createFormInputs,
+    errors,
+    changeHandler,
+    onBlurHandler,
+    inputs,
+    onSubmit,
+  } = useForm(initialValues);
 
   useEffect(() => {
     setModal((prev) => ({
       ...prev,
-      onConfirm: (e) => onSubmit(e, (form) => dispatch(addTodo(form))),
+      onConfirm: async (e) => {
+        await onSubmit(e, (formData) => {
+          if (typeof action === 'function') {
+            return action(formData); // Make sure action returns a promise
+          }
+        });
+      },
     }));
-  }, [setModal, dispatch, onSubmit]);
+  }, [setModal, onSubmit, action]);
+
   useEffect(() => {
-    console.log('Inputs updated:', inputs);
-  }, [inputs]);
+    createFormInputs([...todoFormFields, ...datePickerInput]);
+  }, [createFormInputs]);
+
   return (
     <>
       {todoFormFields.map((field) => (

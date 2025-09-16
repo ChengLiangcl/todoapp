@@ -2,17 +2,16 @@ import React from 'react';
 import Button from '../Button/Button';
 import { useModal } from '../../context/ModalContext';
 import AlertDialog from '../Dialog/Dialog';
+
 export default function ModalButton({
   buttonText,
-  children,
   buttonStyle = {},
   btnDivStyle = {},
   isDialogRequired = false,
-  id = null,
-  onConfirm = null,
   dialogConfig = {},
+  id,
 }) {
-  const { modal, openModal, dialog, setDialog } = useModal();
+  const { setModal, openModal, dialog, setDialog } = useModal();
 
   const clickHandler = () => {
     if (isDialogRequired) {
@@ -22,18 +21,15 @@ export default function ModalButton({
         dialogContentText: dialogConfig.dialogContentText,
       }));
     }
-    openModal(onConfirm);
+    if (id) {
+      setModal((prev) => ({ ...prev, modalId: id }));
+    }
+    openModal();
   };
 
   return (
     <div style={btnDivStyle}>
-      <Button
-        btnName={buttonText}
-        id={id}
-        onClick={clickHandler}
-        sx={buttonStyle}
-      />
-      {modal.isOpen && children}
+      <Button btnName={buttonText} onClick={clickHandler} sx={buttonStyle} />
       <AlertDialog
         dialogContentText={dialog.dialogContentText}
         title={dialog.title}
