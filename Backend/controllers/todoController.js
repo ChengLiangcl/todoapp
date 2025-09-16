@@ -4,8 +4,7 @@ exports.createTodo = async (req, res) => {
   const user = req.user;
   try {
     const { title, content, startDate, dueDate } = req.body;
-    // Simple validation
-    if (!title || !content) {
+    if (!title || !content || !startDate || !dueDate) {
       return res
         .status(400)
         .json({ message: 'Title and content are required' });
@@ -35,6 +34,9 @@ exports.listTodos = async (req, res) => {
     const userId = req.user._id;
 
     const todos = await Todo.find({ user: userId, isDeleted: false })
+      .sort({
+        createdAt: -1,
+      })
       .populate('user', 'name email')
       .skip(skip)
       .limit(limit)
@@ -76,6 +78,24 @@ exports.getTodoById = async (req, res) => {
     const todo = await Todo.findOne({ _id: req.params.id, isDeleted: false });
     if (!todo) return res.status(404).json({ message: 'Todo not found' });
     return res.status(200).json({ todo });
+  } catch (error) {
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.updateTodo = async (req, res) => {
+  try {
+    const { id, title, content, startDate, dueDate } = req.body;
+    const todo = await Todo.findOneAndUpdate(
+      { _id: id },
+      { title, content, startDate, dueDate },
+      { new: true }
+    );
+    if (!todo)
+      return res
+        .status(404)
+        .json({ message: "Can't update a non-existing todo" });
+    else return res.status(200).json({ todo });
   } catch (error) {
     return res.status(500).json({ message: 'Server error' });
   }

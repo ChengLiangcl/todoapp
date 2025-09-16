@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Box, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
@@ -11,7 +11,7 @@ import ModalButton from '../components/ModalButton/ModalButton';
 import { fetchTodos, addTodo } from '../store/todoSlice';
 import Banner from '../components/Alert/Banner';
 import TodoNotifier from '../components/SnackBar/SnackBar';
-import { useSnackbar } from 'notistack';
+import { useModal } from '../context/ModalContext';
 
 const TodoPage = () => {
   const dispatch = useDispatch();
@@ -19,20 +19,23 @@ const TodoPage = () => {
     (state) => state.todo
   );
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedTodoId, setSelectedTodoId] = useState(null);
-  const { enqueueSnackbar } = useSnackbar(); // <- get snackbar here
+  const [, setSelectedTodoId] = useState(null);
+  const { modal } = useModal();
 
   useEffect(() => {
     dispatch(fetchTodos({ page: currentPage, limit: 9 }));
   }, [dispatch, currentPage]);
 
-  const handleDeleteClick = (id) => {
-    setSelectedTodoId(id);
-  };
+  const handleDeleteClick = (id) => setSelectedTodoId(id);
+  const handleUpdate = (id) => setSelectedTodoId(id);
 
-  const handleUpdate = (id) => {
-    setSelectedTodoId(id);
-  };
+  // Only dispatch addTodo once when the form submits
+  const addTodoAction = useCallback(
+    async (form) => {
+      await dispatch(addTodo(form));
+    },
+    [dispatch]
+  );
 
   const renderEmptyContent = () => (
     <Box
@@ -58,6 +61,7 @@ const TodoPage = () => {
   return (
     <>
       <TodoFilter />
+
       {error && (
         <Banner
           sx={{ marginTop: '20px' }}
@@ -67,11 +71,9 @@ const TodoPage = () => {
         />
       )}
 
-      {deletedTodo.map((item, index) => {
-        return (
-          <TodoNotifier key={index} sx={{ marginTop: '20px' }} message={item} />
-        );
-      })}
+      {deletedTodo.map((item, index) => (
+        <TodoNotifier key={index} sx={{ marginTop: '20px' }} message={item} />
+      ))}
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
         <ModalButton
@@ -82,10 +84,12 @@ const TodoPage = () => {
             dialogContentText:
               'Click confirm to exit, if you click no changes will be saved.',
           }}
-        >
-          <TodoModal title="Add Todo Item" />
-        </ModalButton>
+        />
       </Box>
+
+      {modal.isOpen && (
+        <TodoModal title="Add Todo Item" action={addTodoAction} />
+      )}
 
       {todos.length === 0 ? (
         renderEmptyContent()

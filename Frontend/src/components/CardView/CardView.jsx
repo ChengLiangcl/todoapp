@@ -19,8 +19,8 @@ export default function CardView({
     <Card sx={{ maxWidth: 345, margin: '20px' }}>
       <CardMedia
         sx={{ height: 140 }}
-        image="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQnJBGVNQ7vcqT67zTdcZRTn1Ts968sB2cZnZqNU8L90SfL8lA3n_ahkpZWZl05pALHH3_sk_uTCLEQS314DG6mtQ"
-        title="green iguana"
+        image="https://i.natgeofe.com/n/6c02ad5a-977b-4f12-b9c0-02ffb0736e07/metropolitan-cathedral-zocalo-mexico-city.JPG"
+        title="Image"
       />
       <CardContent>
         <Typography gutterBottom variant="h5">

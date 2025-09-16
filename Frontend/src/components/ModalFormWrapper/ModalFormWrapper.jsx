@@ -8,7 +8,10 @@ const ModalFormWrapper = ({
   negativeBtn = 'Close',
   positiveBtn = 'Confirm',
 }) => {
-  const { modal, closeModal } = useModal();
+  const { modal, closeModal, openDialog } = useModal();
+  const cancelHandler = () => {
+    openDialog();
+  };
 
   return (
     <form
@@ -19,11 +22,9 @@ const ModalFormWrapper = ({
         flexGrow: 1,
         overflow: 'hidden',
       }}
-      onSubmit={(e) => {
-        console.log(modal.onConfirm);
-
+      onSubmit={async (e) => {
         e.preventDefault();
-        modal.onConfirm && modal.onConfirm(e);
+        modal.onConfirm && (await modal.onConfirm(e));
         closeModal();
       }}
     >
@@ -50,7 +51,7 @@ const ModalFormWrapper = ({
           btnName={negativeBtn}
           color="error"
           variant="contained"
-          // onClick={clickHandler}
+          onClick={cancelHandler}
         />
         <Button
           btnName={positiveBtn}

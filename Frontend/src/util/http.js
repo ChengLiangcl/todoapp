@@ -2,8 +2,8 @@ const backendUrl = process.env.REACT_APP_BACKEND_API_BASE_URL;
 const Authorization = `Bearer ${localStorage.getItem('token')}` || null;
 
 const postRequest = async (url, data, headers = {}) => {
-  console.log(`${backendUrl}/${url}`);
   try {
+    console.log(data);
     const response = await fetch(`${backendUrl}/${url}`, {
       method: 'POST',
       headers: {
