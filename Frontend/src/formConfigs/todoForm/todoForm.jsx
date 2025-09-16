@@ -1,18 +1,41 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Grid } from '@mui/material';
 import RenderInput from '../renderInput';
 import { Box } from '@mui/system';
 import { inputReducer } from '../../../util/helper';
 import useForm from '../../../hooks/useForms';
 import { todoFormFields, datePickerInput } from './todoFormConfig';
+import { useDispatch } from 'react-redux';
+import { addTodo } from '../../../store/todoSlice';
+import { useModal } from '../../../context/ModalContext';
+export default function TodoForm({ initialValues = {}, action }) {
+  const { setModal } = useModal();
 
-export default function TodoForm({ initialValues = {} }) {
-  const todoObject = {
-    ...inputReducer([...todoFormFields, ...datePickerInput]),
-    ...initialValues,
-  };
+  const {
+    createFormInputs,
+    errors,
+    changeHandler,
+    onBlurHandler,
+    inputs,
+    onSubmit,
+  } = useForm(initialValues);
 
-  const { errors, changeHandler, onBlurHandler, inputs } = useForm(todoObject);
+  useEffect(() => {
+    setModal((prev) => ({
+      ...prev,
+      onConfirm: async (e) => {
+        await onSubmit(e, (formData) => {
+          if (typeof action === 'function') {
+            return action(formData); // Make sure action returns a promise
+          }
+        });
+      },
+    }));
+  }, [setModal, onSubmit, action]);
+
+  useEffect(() => {
+    createFormInputs([...todoFormFields, ...datePickerInput]);
+  }, [createFormInputs]);
 
   return (
     <>
@@ -29,12 +52,19 @@ export default function TodoForm({ initialValues = {} }) {
 
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              mb: 2,
+            }}
+          >
             {datePickerInput.map((field) => (
               <RenderInput
                 key={field.name}
                 field={field}
-                value={inputs[field.name]?.value || ''}
+                value={inputs[field.name]?.value || ''} // <-- and here too
                 errors={errors}
                 changeHandler={changeHandler}
                 onBlurHandler={onBlurHandler}

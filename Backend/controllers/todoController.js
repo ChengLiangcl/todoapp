@@ -1,11 +1,17 @@
 const Todo = require('../models/Todo');
 
+/**
+ * Create a new todo item for the current user.
+ * @param {Object} req.body - The request body containing the todo item details.
+ * @param {Object} req.user - The current user object.
+ * @returns {Promise<Object>} - A promise that resolves to a JSON object containing the created todo item.
+ * @throws {Error} - If the request body is invalid or if there is an error creating the todo item.
+ */
 exports.createTodo = async (req, res) => {
   const user = req.user;
   try {
     const { title, content, startDate, dueDate } = req.body;
-    // Simple validation
-    if (!title || !content) {
+    if (!title || !content || !startDate || !dueDate) {
       return res
         .status(400)
         .json({ message: 'Title and content are required' });
@@ -35,6 +41,9 @@ exports.listTodos = async (req, res) => {
     const userId = req.user._id;
 
     const todos = await Todo.find({ user: userId, isDeleted: false })
+      .sort({
+        createdAt: -1,
+      })
       .populate('user', 'name email')
       .skip(skip)
       .limit(limit)
@@ -63,7 +72,9 @@ exports.deleteTodo = async (req, res) => {
     todo.isDeleted = true;
     todo.deletedAt = new Date();
     await todo.save();
-    return res.status(200).json({ message: 'Todo deleted successfully' });
+    return res
+      .status(200)
+      .json({ message: `Deleted todo with title ${todo.title} successfully` });
   } catch (error) {
     return res.status(500).json({ message: 'Server error' });
   }
@@ -74,6 +85,24 @@ exports.getTodoById = async (req, res) => {
     const todo = await Todo.findOne({ _id: req.params.id, isDeleted: false });
     if (!todo) return res.status(404).json({ message: 'Todo not found' });
     return res.status(200).json({ todo });
+  } catch (error) {
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.updateTodo = async (req, res) => {
+  try {
+    const { id, title, content, startDate, dueDate } = req.body;
+    const todo = await Todo.findOneAndUpdate(
+      { _id: id },
+      { title, content, startDate, dueDate },
+      { new: true }
+    );
+    if (!todo)
+      return res
+        .status(404)
+        .json({ message: "Can't update a non-existing todo" });
+    else return res.status(200).json({ todo });
   } catch (error) {
     return res.status(500).json({ message: 'Server error' });
   }
