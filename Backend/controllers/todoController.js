@@ -1,5 +1,12 @@
 const Todo = require('../models/Todo');
 
+/**
+ * Create a new todo item for the current user.
+ * @param {Object} req.body - The request body containing the todo item details.
+ * @param {Object} req.user - The current user object.
+ * @returns {Promise<Object>} - A promise that resolves to a JSON object containing the created todo item.
+ * @throws {Error} - If the request body is invalid or if there is an error creating the todo item.
+ */
 exports.createTodo = async (req, res) => {
   const user = req.user;
   try {
