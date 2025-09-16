@@ -1,105 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import TodoForm from '../Form/todoForm/todoForm';
-import { Modal, Box, Typography, IconButton } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import AlertDialog from '../Dialog/Dialog';
+import { Box } from '@mui/material';
 import ModalFormWrapper from '../ModalFormWrapper/ModalFormWrapper';
-import { useDispatch } from 'react-redux';
-import { addTodo } from '../../store/todoSlice';
-
+import Modal from '../Modal/Modal';
+import { useModal } from '../../context/ModalContext';
+import { useSelector } from 'react-redux';
 const TodoModal = ({
-  open,
-  onClose,
+  title,
   id = null,
-  title = 'Modal Title',
-  loadTodoInfo,
-  modalConfig = { modalWidth: '50%', modalHeight: '50%' },
-  dialogConfig = { title: 'Todo Title', content: 'Are you sure?' },
+  action,
+  initialValues: formValues = {},
 }) => {
-  const dispatch = useDispatch();
-  const [initialValues, setInitialValues] = useState({});
-  const [showDialog, setShowDialog] = useState(false);
-
-  // Load todo info only when id changes
+  const [initialValues, setInitialValues] = useState(formValues || {});
+  const { modal } = useModal();
+  const { todos } = useSelector((state) => state.todo);
   useEffect(() => {
-    if (typeof loadTodoInfo === 'function' && id) {
-      setInitialValues(loadTodoInfo(id));
-    } else {
-      setInitialValues({});
-    }
-  }, [loadTodoInfo, id]);
+    if (!id) return;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const formData = Object.fromEntries(new FormData(e.target).entries());
-    dispatch(addTodo(formData));
-    onClose();
-  };
+    const currentTodo = todos.find((todo) => todo._id === id);
 
-  const dialogConfirmHandler = () => {
-    onClose();
-    setShowDialog(false);
-  };
+    if (!currentTodo) return {};
+    const { title, content, startDate, dueDate } = currentTodo;
+    if (currentTodo) setInitialValues({ title, content, startDate, dueDate });
+  }, [id, todos]);
 
   return (
     <>
-      <Modal open={open} onClose={() => setShowDialog(true)}>
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            bgcolor: 'background.paper',
-            width: modalConfig.modalWidth,
-            maxHeight: '90%',
-            height: modalConfig.modalHeight,
-            borderRadius: 2,
-            boxShadow: 24,
-            display: 'flex',
-            flexDirection: 'column',
-            outline: 'none',
-            overflowY: 'auto',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              borderBottom: '1px solid #ddd',
-              p: 2,
-              flexShrink: 0,
-            }}
-          >
-            <Typography id="modal-title" variant="h6">
-              {title}
-            </Typography>
-            <IconButton onClick={() => setShowDialog(true)} aria-label="close">
-              <CloseIcon />
-            </IconButton>
-          </Box>
-
-          {/* Form */}
-          <Box sx={{ p: 2 }}>
-            <ModalFormWrapper
-              onSubmit={handleSubmit}
-              handleClose={() => setShowDialog(true)}
-            >
-              <TodoForm initialValues={initialValues} />
-            </ModalFormWrapper>
-          </Box>
+      <Modal title={title} isOpen={modal.isOpen}>
+        <Box sx={{ p: 2 }}>
+          <ModalFormWrapper>
+            <TodoForm initialValues={initialValues} action={action} />
+          </ModalFormWrapper>
         </Box>
       </Modal>
-
-      <AlertDialog
-        open={showDialog}
-        onClose={() => setShowDialog(false)}
-        title={dialogConfig.title}
-        content={dialogConfig.content}
-        onConfirm={dialogConfirmHandler}
-        onCancel={() => setShowDialog(false)}
-      />
     </>
   );
 };

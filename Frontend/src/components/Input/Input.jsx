@@ -29,7 +29,8 @@ const Input = ({
   ...restProps // renamed from props to make clear
 }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [value, setValue] = React.useState(dayjs());
+  const [value] = React.useState(dayjs());
+
   const toggleVisibility = () => setShowPassword((prev) => !prev);
   if (type === 'password') {
     return (
@@ -96,25 +97,26 @@ const Input = ({
     return (
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DatePicker
-          minDate={dayjs()} // <-- Disallow dates before today
           label={label}
-          value={value}
-          onChange={(newValue) => setValue(newValue)}
+          value={restProps.value}
+          onChange={(newValue) =>
+            restProps.onChange(newValue?.format('YYYY-MM-DD'), name)
+          }
           renderInput={(params) => (
             <TextField
               {...params}
               name={name}
-              type={'text'}
+              error={error}
               InputLabelProps={{ shrink: true }}
-              size="small"
-              sx={{ display: 'flex', flexGrow: 1 }}
+              fullWidth
+              onBlur={() => restProps.onBlur(name, value)}
+              helperText={error ? restProps.helperText : ''}
             />
           )}
         />
       </LocalizationProvider>
     );
   }
-
   return (
     <TextField
       id={id}

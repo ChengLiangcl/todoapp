@@ -1,6 +1,18 @@
 import { Box } from '@mui/system';
 import Button from '../Button/Button';
-const ModalFormWrapper = ({ children, onSubmit, handleClose }) => {
+import { useModal } from '../../context/ModalContext';
+const ModalFormWrapper = ({
+  children,
+  onSubmit,
+  handleClose,
+  negativeBtn = 'Close',
+  positiveBtn = 'Confirm',
+}) => {
+  const { modal, closeModal, openDialog } = useModal();
+  const cancelHandler = () => {
+    openDialog();
+  };
+
   return (
     <form
       method="POST"
@@ -10,9 +22,10 @@ const ModalFormWrapper = ({ children, onSubmit, handleClose }) => {
         flexGrow: 1,
         overflow: 'hidden',
       }}
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
-        onSubmit(e);
+        modal.onConfirm && (await modal.onConfirm(e));
+        closeModal();
       }}
     >
       <Box
@@ -35,13 +48,13 @@ const ModalFormWrapper = ({ children, onSubmit, handleClose }) => {
         }}
       >
         <Button
-          btnName="Close"
+          btnName={negativeBtn}
           color="error"
           variant="contained"
-          onClick={handleClose}
+          onClick={cancelHandler}
         />
         <Button
-          btnName="Confirm"
+          btnName={positiveBtn}
           color="primary"
           variant="contained"
           type="submit"

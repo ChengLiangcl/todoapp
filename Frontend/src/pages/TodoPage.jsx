@@ -1,47 +1,41 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Box, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-
 import CustomizedPagination from '../components/Pagination/CustomizedPagination';
 import TodoList from '../components/Todo/TodoList';
 import TodoModal from '../components/Todo/TodoModal';
 import TodoFilter from '../components/Todo/TodoFilter';
-import DeleteTodoDialog from '../components/Todo/DeleteTodoDialog';
 import Loader from '../components/Loader/Loader';
 import ModalButton from '../components/ModalButton/ModalButton';
-import { fetchTodos, deleteTodos } from '../store/todoSlice';
+import { fetchTodos, addTodo } from '../store/todoSlice';
 import Banner from '../components/Alert/Banner';
+import TodoNotifier from '../components/SnackBar/SnackBar';
+import { useModal } from '../context/ModalContext';
 
 const TodoPage = () => {
   const dispatch = useDispatch();
-  const { todos, loading, error, totalPage } = useSelector(
+  const { todos, loading, error, totalPage, deletedTodo } = useSelector(
     (state) => state.todo
   );
   const [currentPage, setCurrentPage] = useState(1);
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [selectedTodoId, setSelectedTodoId] = useState(null);
+  const [, setSelectedTodoId] = useState(null);
+  const { modal } = useModal();
 
   useEffect(() => {
     dispatch(fetchTodos({ page: currentPage, limit: 9 }));
   }, [dispatch, currentPage]);
 
-  const handleDeleteClick = (id) => {
-    setSelectedTodoId(id);
-    setOpenDeleteDialog(true);
-  };
+  const handleDeleteClick = (id) => setSelectedTodoId(id);
+  const handleUpdate = (id) => setSelectedTodoId(id);
 
-  const handleUpdate = (id) => {
-    setSelectedTodoId(id);
-  };
-
-  const handleCancelDelete = () => setOpenDeleteDialog(false);
-
-  const handleConfirmDelete = () => {
-    if (!selectedTodoId) return;
-    dispatch(deleteTodos(selectedTodoId));
-    setOpenDeleteDialog(false);
-  };
+  // Only dispatch addTodo once when the form submits
+  const addTodoAction = useCallback(
+    async (form) => {
+      await dispatch(addTodo(form));
+    },
+    [dispatch]
+  );
 
   const renderEmptyContent = () => (
     <Box
@@ -67,6 +61,7 @@ const TodoPage = () => {
   return (
     <>
       <TodoFilter />
+
       {error && (
         <Banner
           sx={{ marginTop: '20px' }}
@@ -75,17 +70,26 @@ const TodoPage = () => {
           message={error}
         />
       )}
+
+      {deletedTodo.map((item, index) => (
+        <TodoNotifier key={index} sx={{ marginTop: '20px' }} message={item} />
+      ))}
+
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-        <ModalButton buttonText="Add Todo Item">
-          <TodoModal
-            title="Add Todo Item"
-            dialogConfig={{
-              title: 'Are you sure you want to exit todo creation?',
-              content: 'Click Yes to create a record, No to exit the modal',
-            }}
-          />
-        </ModalButton>
+        <ModalButton
+          buttonText="Add Todo Item"
+          isDialogRequired={true}
+          dialogConfig={{
+            title: 'Are you sure you want to exit to create a todo?',
+            dialogContentText:
+              'Click confirm to exit, if you click no changes will be saved.',
+          }}
+        />
       </Box>
+
+      {modal.isOpen && (
+        <TodoModal title="Add Todo Item" action={addTodoAction} />
+      )}
 
       {todos.length === 0 ? (
         renderEmptyContent()
@@ -103,11 +107,6 @@ const TodoPage = () => {
               todos={todos}
               onDelete={handleDeleteClick}
               onUpdate={handleUpdate}
-            />
-            <DeleteTodoDialog
-              open={openDeleteDialog}
-              onClose={handleCancelDelete}
-              onConfirm={handleConfirmDelete}
             />
           </Box>
 

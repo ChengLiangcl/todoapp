@@ -1,25 +1,39 @@
 import React from 'react';
 import Button from '../Button/Button';
+import { useModal } from '../../context/ModalContext';
+import AlertDialog from '../Dialog/Dialog';
 
 export default function ModalButton({
   buttonText,
-  children,
   buttonStyle = {},
   btnDivStyle = {},
-  id = null,
+  isDialogRequired = false,
+  dialogConfig = {},
+  id,
 }) {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const onOpen = () => setIsOpen(true);
-  const onClose = () => setIsOpen(false);
+  const { setModal, openModal, dialog, setDialog } = useModal();
 
-  const modalComponent = React.isValidElement(children)
-    ? React.cloneElement(children, { open: isOpen, onClose })
-    : null;
+  const clickHandler = () => {
+    if (isDialogRequired) {
+      setDialog((prev) => ({
+        ...prev,
+        title: dialogConfig.title,
+        dialogContentText: dialogConfig.dialogContentText,
+      }));
+    }
+    if (id) {
+      setModal((prev) => ({ ...prev, modalId: id }));
+    }
+    openModal();
+  };
 
   return (
     <div style={btnDivStyle}>
-      <Button btnName={buttonText} id={id} onClick={onOpen} sx={buttonStyle} />
-      {modalComponent}
+      <Button btnName={buttonText} onClick={clickHandler} sx={buttonStyle} />
+      <AlertDialog
+        dialogContentText={dialog.dialogContentText}
+        title={dialog.title}
+      />
     </div>
   );
 }
