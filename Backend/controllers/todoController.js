@@ -1,4 +1,5 @@
 const Todo = require('../models/Todo');
+const File = require('../models/Files');
 
 /**
  * Create a new todo item for the current user.
@@ -17,6 +18,8 @@ exports.createTodo = async (req, res) => {
         .json({ message: 'Title and content are required' });
     }
 
+    const fileList = req.files['files'] || [];
+
     const todo = await Todo.create({
       title,
       content,
@@ -25,7 +28,24 @@ exports.createTodo = async (req, res) => {
       user: user._id, // store only the user ID
     });
 
-    return res.status(201).json({ todo });
+    let files = [];
+    if (fileList.length > 0) {
+      fileList.forEach(async (file) => {
+        const { path, originalname: filename, size, mimetype: fileType } = file;
+        const uploadedFile = await File.create({
+          filename,
+          path,
+          size,
+          fileType,
+          type: 'Todo support document',
+          user: user._id,
+          todo: todo._id,
+        });
+        files.push(uploadedFile);
+      });
+    }
+
+    return res.status(201).json({ todo, files });
   } catch (error) {
     return res.status(500).json({ message: 'Server error: ' + error.message });
   }
@@ -102,7 +122,7 @@ exports.updateTodo = async (req, res) => {
       return res
         .status(404)
         .json({ message: "Can't update a non-existing todo" });
-    else return res.status(200).json({ todo });
+    return res.status(200).json({ todo });
   } catch (error) {
     return res.status(500).json({ message: 'Server error' });
   }

@@ -27,4 +27,6 @@ app.listen(3000, async () => {
   console.log('Server is starting.........');
 });
 
+app.use('/uploads', express.static('uploads'));
+
 module.exports = app;

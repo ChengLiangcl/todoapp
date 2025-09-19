@@ -35,8 +35,10 @@ export const addTodo = createAsyncThunk('todos/addTodo', async (todo) => {
 });
 
 export const updateTodo = createAsyncThunk('todos/updateTodo', async (todo) => {
-  const data = await putRequest(`todos/${todo._id}`, todo);
-  return data;
+  const data = await putRequest(`todos/${todo.id}`, todo);
+  const { _id, title, content, startDate, dueDate, isCompleted, deletedAt } =
+    data['todo'];
+  return { _id, title, content, startDate, dueDate, isCompleted, deletedAt };
 });
 
 const todoSlice = createSlice({
@@ -86,9 +88,11 @@ const todoSlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(updateTodo.fulfilled, (state, action) => {
-        const updated = action.payload;
-        const index = state.todos.findIndex((todo) => todo._id === updated._id);
-        if (index !== -1) state.todos[index] = updated;
+        const updatedTodo = action.payload;
+        const index = state.todos.findIndex(
+          (todo) => todo._id === updatedTodo._id
+        );
+        state.todos[index] = updatedTodo;
       })
       .addCase(updateTodo.rejected, (state, action) => {
         state.error = action.error.message;
