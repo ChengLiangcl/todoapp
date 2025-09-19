@@ -3,8 +3,6 @@ import Button from '../Button/Button';
 import { useModal } from '../../context/ModalContext';
 const ModalFormWrapper = ({
   children,
-  onSubmit,
-  handleClose,
   negativeBtn = 'Close',
   positiveBtn = 'Confirm',
 }) => {

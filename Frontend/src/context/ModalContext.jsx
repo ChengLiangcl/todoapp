@@ -74,7 +74,12 @@ export const ModalProvider = ({ children }) => {
   const confirmDialog = () => {
     typeof dialog.onConfirm === 'function' && dialog.onConfirm();
     setDialog((prev) => ({ ...prev, isOpen: false, onConfirm: null }));
-    setModal((prev) => ({ ...prev, isOpen: false, onConfirm: null }));
+    setModal((prev) => ({
+      ...prev,
+      isOpen: false,
+      onConfirm: null,
+      modalId: null,
+    }));
   };
 
   const cancelDialog = () => {

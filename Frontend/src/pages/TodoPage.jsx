@@ -29,7 +29,6 @@ const TodoPage = () => {
   const handleDeleteClick = (id) => setSelectedTodoId(id);
   const handleUpdate = (id) => setSelectedTodoId(id);
 
-  // Only dispatch addTodo once when the form submits
   const addTodoAction = useCallback(
     async (form) => {
       await dispatch(addTodo(form));

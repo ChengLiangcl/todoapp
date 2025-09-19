@@ -4,25 +4,16 @@ import { Box } from '@mui/material';
 import ModalFormWrapper from '../ModalFormWrapper/ModalFormWrapper';
 import Modal from '../Modal/Modal';
 import { useModal } from '../../context/ModalContext';
-import { useSelector } from 'react-redux';
-const TodoModal = ({
-  title,
-  id = null,
-  action,
-  initialValues: formValues = {},
-}) => {
-  const [initialValues, setInitialValues] = useState(formValues || {});
+const TodoModal = ({ title, id = null, action }) => {
+  const [initialValues, setInitialValues] = useState({});
   const { modal } = useModal();
-  const { todos } = useSelector((state) => state.todo);
+
   useEffect(() => {
-    if (!id) return;
-
-    const currentTodo = todos.find((todo) => todo._id === id);
-
-    if (!currentTodo) return {};
-    const { title, content, startDate, dueDate } = currentTodo;
-    if (currentTodo) setInitialValues({ title, content, startDate, dueDate });
-  }, [id, todos]);
+    if (id) {
+    } else {
+      setInitialValues({});
+    }
+  }, [id]);
 
   return (
     <>

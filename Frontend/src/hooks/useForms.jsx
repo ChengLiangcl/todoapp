@@ -1,11 +1,13 @@
-import { useCallback } from 'react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 const useForm = (initialValues) => {
   const [inputs, setInputs] = useState(initialValues);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+  const [files, setFiles] = useState([]);
+  const [coverPhoto, setCoverPhoto] = useState(null);
 
+  // Initialize form inputs with validationFn
   const createFormInputs = useCallback((inputFields) => {
     const result = inputFields.reduce((acc, { name, validationFn }) => {
       acc[name] = {
@@ -17,6 +19,7 @@ const useForm = (initialValues) => {
     }, {});
     setInputs(result);
   }, []);
+
   // Universal change handler
   const changeHandler = (eOrValue, name) => {
     if (eOrValue?.target) {
@@ -30,6 +33,7 @@ const useForm = (initialValues) => {
     }
   };
 
+  // Blur handler — sets touched and updates errors
   const onBlurHandler = (eOrName, value) => {
     let name, val;
     if (eOrName?.target) {
@@ -40,55 +44,63 @@ const useForm = (initialValues) => {
       val = value;
     }
 
-    setTouched((prev) => {
-      const updated = { ...prev, [name]: true };
-      const validateResult =
-        initialValues[name]?.validationFn?.(val, inputs) ?? true;
+    setTouched((prev) => ({ ...prev, [name]: true }));
 
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        [name]: !validateResult,
-      }));
+    const validateResult = inputs[name]?.validationFn?.(val, inputs) ?? true;
 
-      return updated;
-    });
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: !validateResult,
+    }));
   };
 
+  // Validate all fields
   const validateAll = () => {
     let valid = true;
-    Object.entries(inputs).forEach(([name, { value, validationFn }]) => {
-      const result = validationFn?.(value, inputs) ?? true;
-      if (!result) {
-        valid = false;
-        setErrors((prev) => ({ ...prev, [name]: true }));
-      }
+    const newErrors = {};
+
+    Object.entries(inputs).forEach(([name, inputObj]) => {
+      const result = inputObj.validationFn?.(inputObj.value, inputs) ?? true;
+      newErrors[name] = !result;
+      if (!result) valid = false;
     });
+
+    setErrors(newErrors);
+    setTouched((prev) => ({
+      ...prev,
+      ...Object.keys(inputs).reduce((acc, k) => ({ ...acc, [k]: true }), {}),
+    }));
+
     return valid;
   };
 
+  // Reset form
   const reset = () => {
     setInputs(initialValues);
     setErrors({});
     setTouched({});
   };
 
+  // Form submission
   const onSubmit = async (e, submitFn) => {
     e.preventDefault();
+    if (!validateAll()) return;
 
-    // if (!validateAll()) return;
+    const formData = new FormData(e.target);
 
-    const form = Object.fromEntries(
-      Object.entries(inputs).map(([k, v]) => [k, v.value])
-    );
+    files.forEach((file) => formData.append('files', file));
+
+    // Append cover photo
+    if (coverPhoto) formData.append('coverPhoto', coverPhoto);
 
     try {
-      await submitFn(form);
+      await submitFn(formData);
     } catch (err) {
       return err;
     }
 
     reset();
-    return form;
+    return formData;
   };
 
   return {
@@ -103,6 +115,10 @@ const useForm = (initialValues) => {
     setInputs,
     setErrors,
     createFormInputs,
+    files,
+    setFiles,
+    coverPhoto,
+    setCoverPhoto,
   };
 };
 

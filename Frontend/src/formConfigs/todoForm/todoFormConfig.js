@@ -1,4 +1,8 @@
-import { isRequired, validateStartAndEndDate } from '../../util/validaiton';
+import {
+  isRequired,
+  validateStartAndEndDate,
+  validateDateComparison,
+} from '../../util/validaiton';
 import TitleIcon from '@mui/icons-material/Title';
 import DescriptionIcon from '@mui/icons-material/Description';
 import DateRangeIcon from '@mui/icons-material/DateRange';
@@ -31,7 +35,8 @@ const datePickerInput = [
     placeholder: 'Choose the todo start date',
     helperText: 'Start date must be before the due date',
     Icon: DateRangeIcon,
-    validationFn: validateStartAndEndDate,
+    validationFn: (value, inputs) =>
+      validateDateComparison(value, inputs, 'dueDate'),
   },
   {
     label: 'End date',
@@ -40,7 +45,8 @@ const datePickerInput = [
     placeholder: 'Choose the todo end date',
     helperText: 'Due date must be after the start date',
     Icon: DateRangeIcon,
-    validationFn: validateStartAndEndDate,
+    validationFn: (value, inputs) =>
+      validateDateComparison(value, inputs, 'startDate'),
   },
 ];
 export { todoFormFields, datePickerInput };

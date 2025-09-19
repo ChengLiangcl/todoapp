@@ -14,6 +14,10 @@ const fileSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    fileType: {
+      type: String,
+      required: true,
+    },
     type: {
       type: String,
       required: true,
@@ -22,8 +26,12 @@ const fileSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: 'User',
     },
+    todo: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Todo',
+    },
   },
   { timestamps: true }
 );
 
-export default mongoose.model('File', fileSchema);
+module.exports = mongoose.model('File', fileSchema);
