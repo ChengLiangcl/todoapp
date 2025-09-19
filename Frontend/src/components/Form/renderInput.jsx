@@ -28,7 +28,7 @@ export default function RenderInput({
       <Input
         {...field}
         fullWidth
-        value={value} // <- controlled
+        value={value}
         error={errors[name] || undefined}
         type={type}
         helperText={errors[name] ? helperText : ''}

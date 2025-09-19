@@ -15,23 +15,20 @@ import { useModal } from '../../../context/ModalContext';
  * @returns {React.Component} A form component with the todo item fields.
  */
 export default function TodoForm({ initialValues = {}, action }) {
-  const form = useForm(inputReducer([...todoFormFields, ...datePickerInput]));
-  const { inputs, errors, changeHandler, onBlurHandler, onSubmit, setInputs } =
-    form;
+  let todoObject = {
+    ...inputReducer([...todoFormFields, ...datePickerInput]),
+  };
+  if (Object.keys(initialValues).length > 0) {
+    todoObject = {
+      ...inputReducer([...todoFormFields, ...datePickerInput]),
+      ...Object.fromEntries(
+        Object.entries(initialValues).map(([key, value]) => [key, { value }])
+      ),
+    };
+  }
 
-  // Reset form whenever initialValues change (like when editing a new todo)
-  useEffect(() => {
-    if (Object.keys(initialValues).length === 0) return;
-    setInputs((prev) => {
-      const updated = { ...prev };
-      Object.entries(initialValues).forEach(([key, value]) => {
-        if (updated[key]) {
-          updated[key] = { ...updated[key], value }; // keep old validationFn, etc.
-        }
-      });
-      return updated;
-    });
-  }, [initialValues, setInputs]);
+  const { errors, changeHandler, onBlurHandler, inputs, onSubmit } =
+    useForm(todoObject);
 
   const { setModal } = useModal();
 

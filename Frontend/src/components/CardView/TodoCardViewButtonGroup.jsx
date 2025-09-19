@@ -1,13 +1,20 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import Button from '../Button/Button';
 import ModalButton from '../ModalButton/ModalButton';
 import TodoModal from '../Todo/TodoModal';
 import { useModal } from '../../context/ModalContext';
-import { deleteTodos, fetchTodos } from '../../store/todoSlice';
+import { deleteTodos, fetchTodos, updateTodo } from '../../store/todoSlice';
 import { useDispatch } from 'react-redux';
 const TodoCardViewButtonGroup = ({ onComplete, id }) => {
   const { modal, openDialog, setDialog } = useModal();
   const dispatch = useDispatch();
+
+  const updarteTodoAction = useCallback(
+    async (form) => {
+      await dispatch(updateTodo({ ...form, id }));
+    },
+    [dispatch, id]
+  );
 
   const hoverEffect = {
     transition: 'transform 0.2s ease, box-shadow 0.2s ease',
@@ -25,7 +32,6 @@ const TodoCardViewButtonGroup = ({ onComplete, id }) => {
         onClick={() =>
           openDialog(
             () => dispatch(deleteTodos(id)),
-            dispatch(fetchTodos({ page: 1, limit: 9 })),
             setDialog((prev) => ({
               ...prev,
               isOpen: true,
@@ -81,13 +87,13 @@ const TodoCardViewButtonGroup = ({ onComplete, id }) => {
 
       {modal.isOpen && modal.modalId === id && (
         <TodoModal
+          action={updarteTodoAction}
           id={id}
           title="Update Todo Item"
           dialogConfig={{
             title: 'Are you sure you want to exit update creation?',
             content: 'Click Yes to create a record, No to exit the modal',
           }}
-          action={() => console.log('test')}
         />
       )}
     </>
