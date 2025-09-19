@@ -12,15 +12,22 @@ export const passwordsMatch = (confirmPassword, inputs) => {
   return confirmPassword === inputs.password?.value;
 };
 
-export const validateDateComparison = (value, inputs, relatedField) => {
-  const otherValue = inputs[relatedField]?.value;
-
-  // If either is empty, don’t show error yet
-  if (!value || !otherValue) return true;
+export const validateDateComparison = (value, inputs, compareField) => {
+  const compareValue = inputs[compareField]?.value;
+  if (!value || !compareValue) return true;
 
   const currentDate = new Date(value);
-  const otherDate = new Date(otherValue);
+  const otherDate = new Date(compareValue);
 
-  // If current date should be before the other date
-  return currentDate < otherDate;
+  if (isNaN(currentDate.getTime()) || isNaN(otherDate.getTime())) return true;
+
+  if (compareField === 'dueDate') {
+    // current field is startDate, compare with dueDate
+    return currentDate <= otherDate;
+  } else if (compareField === 'startDate') {
+    // current field is dueDate, compare with startDate
+    return currentDate >= otherDate;
+  }
+
+  return true;
 };

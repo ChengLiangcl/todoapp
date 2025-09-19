@@ -126,6 +126,7 @@ const Input = ({
       InputLabelProps={{ shrink: true }}
       autoComplete={autoComplete || 'off'}
       name={name}
+      placeholder={placeholder}
       {...restProps}
     />
   );
