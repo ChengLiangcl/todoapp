@@ -29,7 +29,7 @@ exports.createTodo = async (req, res) => {
           const { originalname: filename, size, mimetype, buffer } = file;
           const url = await uploadFile(
             file,
-            `todos/${todo._id}/${Date.now()}-${filename}`
+            `todos/${user._id}/${Date.now()}-${filename}`
           );
           return await File.create({
             filename,
