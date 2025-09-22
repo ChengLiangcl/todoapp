@@ -1,13 +1,7 @@
 const Todo = require('../models/Todo');
 const File = require('../models/Files');
-
-/**
- * Create a new todo item for the current user.
- * @param {Object} req.body - The request body containing the todo item details.
- * @param {Object} req.user - The current user object.
- * @returns {Promise<Object>} - A promise that resolves to a JSON object containing the created todo item.
- * @throws {Error} - If the request body is invalid or if there is an error creating the todo item.
- */
+const bucket = require('../configs/firebase');
+const { uploadFile } = require('../configs/firebaseUtil');
 exports.createTodo = async (req, res) => {
   const user = req.user;
   try {
@@ -18,39 +12,44 @@ exports.createTodo = async (req, res) => {
         .json({ message: 'Title and content are required' });
     }
 
-    const fileList = req.files['files'] || [];
+    const fileList = req.files?.['files'] || [];
 
     const todo = await Todo.create({
       title,
       content,
       startDate,
       dueDate,
-      user: user._id, // store only the user ID
+      user: user._id,
     });
 
     let files = [];
     if (fileList.length > 0) {
-      fileList.forEach(async (file) => {
-        const { path, originalname: filename, size, mimetype: fileType } = file;
-        const uploadedFile = await File.create({
-          filename,
-          path,
-          size,
-          fileType,
-          type: 'Todo support document',
-          user: user._id,
-          todo: todo._id,
-        });
-        files.push(uploadedFile);
-      });
+      files = await Promise.all(
+        fileList.map(async (file) => {
+          const { originalname: filename, size, mimetype } = file;
+          const url = await uploadFile(
+            file,
+            `todos/${todo._id}/${Date.now()}-${filename}`
+          );
+          return await File.create({
+            filename,
+            path: url,
+            size,
+            fileType: mimetype,
+            type: 'Todo support document',
+            user: user._id,
+            todo: todo._id,
+          });
+        })
+      );
     }
 
     return res.status(201).json({ todo, files });
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ message: 'Server error: ' + error.message });
   }
 };
-
 exports.listTodos = async (req, res) => {
   try {
     let { page = 1, limit = 12 } = req.query;
@@ -122,7 +121,24 @@ exports.updateTodo = async (req, res) => {
       return res
         .status(404)
         .json({ message: "Can't update a non-existing todo" });
+
     return res.status(200).json({ todo });
+  } catch (error) {
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.searchTodo = async (req, res) => {
+  try {
+    const { title, content, category } = req.body;
+    const todos = await Todo.find({
+      title: { $regex: title, $options: 'i' },
+      content: { $regex: content, $options: 'i' },
+      category: { $regex: category, $options: 'i' },
+    });
+    if (!todos)
+      return res.status(404).json({ message: 'Todo not found', todos: [] });
+    return res.status(200).json({ todos });
   } catch (error) {
     return res.status(500).json({ message: 'Server error' });
   }
