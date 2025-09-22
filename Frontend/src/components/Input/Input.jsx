@@ -11,7 +11,9 @@ import InputLabel from '@mui/material/InputLabel';
 import dayjs from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+// import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { DesktopDateTimePicker } from '@mui/x-date-pickers/DesktopDateTimePicker';
+
 const Input = ({
   type = 'text',
   id,
@@ -26,10 +28,9 @@ const Input = ({
   variant = 'outlined',
   errorMessage,
   name,
-  ...restProps // renamed from props to make clear
+  ...restProps
 }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [value] = React.useState(dayjs());
 
   const toggleVisibility = () => setShowPassword((prev) => !prev);
   if (type === 'password') {
@@ -96,21 +97,32 @@ const Input = ({
   if (type === 'date') {
     return (
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DatePicker
+        <DesktopDateTimePicker
           label={label}
-          value={restProps.value}
-          onChange={(newValue) =>
-            restProps.onChange(newValue?.format('YYYY-MM-DD'), name)
-          }
+          views={['year', 'month', 'day', 'hours', 'minutes', 'seconds']}
+          value={restProps.value ? dayjs(restProps.value) : null}
+          inputFormat="YYYY-MM-DD HH:mm:ss"
+          onChange={(newValue) => {
+            restProps.onChange?.({
+              target: {
+                name,
+                value: newValue?.format('YYYY-MM-DD HH:mm:ss') || '',
+              },
+            });
+          }}
+          onClose={() => {
+            restProps.onBlur?.({ target: { name } });
+          }}
           renderInput={(params) => (
             <TextField
               {...params}
               name={name}
               error={error}
-              InputLabelProps={{ shrink: true }}
               fullWidth
-              onBlur={() => restProps.onBlur(name, value)}
               helperText={error ? restProps.helperText : ''}
+              onBlur={(e) => {
+                restProps.onBlur?.(e);
+              }}
             />
           )}
         />

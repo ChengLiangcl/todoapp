@@ -22,9 +22,11 @@ const VisuallyHiddenInput = styled('input')({
 export default function PhotoUploader({
   buttonText = 'Upload cover photo',
   maxFileSizeMB = 5,
+  name,
   onChange,
+  coverPhoto,
+  setCoverPhoto,
 }) {
-  const [file, setFile] = React.useState(null);
   const [previewUrl, setPreviewUrl] = React.useState(null);
   const [error, setError] = React.useState('');
 
@@ -45,7 +47,7 @@ export default function PhotoUploader({
       return;
     }
 
-    setFile(selectedFile);
+    setCoverPhoto(selectedFile);
 
     setPreviewUrl(URL.createObjectURL(selectedFile));
 
@@ -96,6 +98,7 @@ export default function PhotoUploader({
           type="file"
           accept="image/*"
           onChange={handleFileChange}
+          name={name}
         />
       </Button>
 

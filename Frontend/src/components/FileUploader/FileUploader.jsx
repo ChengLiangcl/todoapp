@@ -20,12 +20,16 @@ export default function FileUploader({
   files = [],
   setFiles,
   buttonText,
+  name,
   maxFiles = 5,
   maxFileSizeMB = 5,
 }) {
   const [error, setError] = React.useState('');
   const text = buttonText || 'Upload files';
 
+  React.useEffect(() => {
+    console.log(files);
+  }, [files]);
   const handleFileChange = (event) => {
     setError('');
 
@@ -49,13 +53,12 @@ export default function FileUploader({
     const uniqueFiles = Array.from(
       new Map(combinedFiles.map((file) => [file.name, file])).values()
     );
-    console.log(files);
 
     setFiles(uniqueFiles);
   };
 
-  const handleDelete = (idx) => {
-    setFiles((prev) => prev.filter((_, i) => i !== idx));
+  const handleDelete = (id) => {
+    setFiles((prev) => prev.filter((_, i) => i !== id));
   };
 
   return (
@@ -71,6 +74,7 @@ export default function FileUploader({
           onChange={handleFileChange}
           multiple
           accept="image/*,.pdf,.doc,.docx"
+          name={name}
         />
       </Button>
 
@@ -80,7 +84,7 @@ export default function FileUploader({
           variant="body2"
           style={{ marginTop: '0.5rem' }}
         >
-          {'not very good'}
+          {'You can only upload up to ' + maxFiles + ' files'}
         </Typography>
       )}
 

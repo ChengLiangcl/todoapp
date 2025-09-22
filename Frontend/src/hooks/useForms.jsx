@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 
 const useForm = (initialValues) => {
   const [inputs, setInputs] = useState(initialValues);
@@ -7,6 +7,9 @@ const useForm = (initialValues) => {
   const [files, setFiles] = useState([]);
   const [coverPhoto, setCoverPhoto] = useState(null);
 
+  useEffect(() => {
+    console.log(files);
+  }, [files]);
   // Initialize form inputs with validationFn
   const createFormInputs = useCallback((inputFields) => {
     const result = inputFields.reduce((acc, { name, validationFn }) => {
@@ -88,10 +91,11 @@ const useForm = (initialValues) => {
 
     const formData = new FormData(e.target);
 
-    files.forEach((file) => formData.append('files', file));
+    // files.forEach((file) => formData.append('files', file));
 
     // Append cover photo
-    if (coverPhoto) formData.append('coverPhoto', coverPhoto);
+
+    // if (coverPhoto) formData.append('coverPhoto', coverPhoto);
 
     try {
       await submitFn(formData);

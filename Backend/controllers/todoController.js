@@ -12,7 +12,7 @@ exports.createTodo = async (req, res) => {
         .json({ message: 'Title and content are required' });
     }
 
-    const fileList = req.files?.['files'] || [];
+    const fileList = req.files || [];
 
     const todo = await Todo.create({
       title,
@@ -26,15 +26,14 @@ exports.createTodo = async (req, res) => {
     if (fileList.length > 0) {
       files = await Promise.all(
         fileList.map(async (file) => {
-          const { originalname: filename, size, mimetype, buffer } = file;
-          const url = await uploadFile(
-            file,
-<<<<<<< HEAD
-            `todos/${todo._id}/${Date.now()}-${filename}`
-=======
-            `todos/${user._id}/${Date.now()}-${filename}`
->>>>>>> feat/todo-filter-clean
-          );
+          const { originalname: filename, size, mimetype } = file;
+
+          const filePathName =
+            file.fieldname === 'files'
+              ? `todos/${todo._id}/${Date.now()}-${filename}`
+              : `todos/${todo._id}/cover_photo/${Date.now()}-${filename}`;
+          const url = await uploadFile(file, filePathName);
+
           return await File.create({
             filename,
             path: url,

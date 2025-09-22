@@ -1,15 +1,14 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import Input from '../Input/Input'; // your existing Input component
-
 export default function RenderInput({
   field,
   value, // <- controlled value
-  errors,
-  changeHandler,
+  error,
+  onChangeHandler,
   onBlurHandler,
 }) {
-  const { Icon, name, type, helperText } = field;
+  const { Icon, name, type } = field;
 
   return (
     <Box
@@ -29,10 +28,10 @@ export default function RenderInput({
         {...field}
         fullWidth
         value={value}
-        error={errors[name] || undefined}
+        error={error === '' ? false : true}
         type={type}
-        helperText={errors[name] ? helperText : ''}
-        onChange={changeHandler}
+        helperText={error}
+        onChange={onChangeHandler}
         onBlur={onBlurHandler}
       />
     </Box>
