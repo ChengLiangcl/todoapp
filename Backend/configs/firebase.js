@@ -1,9 +1,9 @@
+require('dotenv').config();
 const admin = require('firebase-admin');
-const serviceAccount = require('../configs/serviceAccountKey.json');
-
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  storageBucket: 'test-d9994.appspot.com',
+  storageBucket: process.env.STORAGE_BUCKET,
 });
 
 const bucket = admin.storage().bucket();

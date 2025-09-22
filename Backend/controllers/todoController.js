@@ -26,7 +26,7 @@ exports.createTodo = async (req, res) => {
     if (fileList.length > 0) {
       files = await Promise.all(
         fileList.map(async (file) => {
-          const { originalname: filename, size, mimetype } = file;
+          const { originalname: filename, size, mimetype, buffer } = file;
           const url = await uploadFile(
             file,
             `todos/${todo._id}/${Date.now()}-${filename}`
