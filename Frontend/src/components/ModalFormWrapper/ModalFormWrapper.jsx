@@ -7,7 +7,7 @@ const ModalFormWrapper = ({
   positiveBtn = 'Confirm',
   onSubmit,
 }) => {
-  const { closeModal, openDialog } = useModal();
+  const { openDialog } = useModal();
   const cancelHandler = () => {
     openDialog();
   };
@@ -24,7 +24,6 @@ const ModalFormWrapper = ({
       onSubmit={async (e) => {
         e.preventDefault();
         onSubmit(e);
-        closeModal();
       }}
     >
       <Box

@@ -34,10 +34,12 @@ const todoSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: 'User',
     },
-    files: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'File',
-    },
+    files: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'File',
+      },
+    ],
   },
   { timestamps: true }
 );

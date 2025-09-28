@@ -27,9 +27,20 @@ export default function PhotoUploader({
   coverPhoto,
   setCoverPhoto,
 }) {
-  const [previewUrl, setPreviewUrl] = React.useState(null);
+  const [previewUrl, setPreviewUrl] = React.useState(
+    () => coverPhoto?.[0]?.path || null
+  );
   const [error, setError] = React.useState('');
 
+  React.useEffect(() => {
+    if (coverPhoto) {
+      setPreviewUrl(coverPhoto[0]?.path);
+    }
+  }, [setPreviewUrl, coverPhoto]);
+
+  React.useEffect(() => {
+    console.log(previewUrl);
+  }, [previewUrl]);
   const handleFileChange = (event) => {
     setError('');
     const selectedFile = event.target.files[0];
@@ -46,8 +57,10 @@ export default function PhotoUploader({
       setError(`File must be ≤ ${maxFileSizeMB}MB`);
       return;
     }
-
-    setCoverPhoto(selectedFile);
+    setCoverPhoto((prev) => ({
+      ...prev,
+      [name]: selectedFile,
+    }));
 
     setPreviewUrl(URL.createObjectURL(selectedFile));
 

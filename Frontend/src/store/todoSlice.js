@@ -36,9 +36,26 @@ export const addTodo = createAsyncThunk('todos/addTodo', async (todo) => {
 
 export const updateTodo = createAsyncThunk('todos/updateTodo', async (todo) => {
   const data = await putRequest(`todos/${todo.id}`, todo);
-  const { _id, title, content, startDate, dueDate, isCompleted, deletedAt } =
-    data['todo'];
-  return { _id, title, content, startDate, dueDate, isCompleted, deletedAt };
+  const {
+    _id,
+    title,
+    content,
+    startDate,
+    dueDate,
+    isCompleted,
+    deletedAt,
+    files,
+  } = data['todo'];
+  return {
+    _id,
+    title,
+    content,
+    startDate,
+    dueDate,
+    isCompleted,
+    deletedAt,
+    files,
+  };
 });
 
 const todoSlice = createSlice({

@@ -1,140 +1,117 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Grid } from '@mui/material';
-import RenderInput from '../renderInput';
+import ModalFormWrapper from '@components/ModalFormWrapper/ModalFormWrapper';
+import todoValidator from '@components/Form/todoForm/todoValidator';
+import RenderInput from '@components/Form/RenderInput';
+import {
+  todoFormFields,
+  datePickerInput,
+} from '@components/Form/todoForm/todoFormConfig';
 import { Box } from '@mui/system';
-// import { inputReducer } from '../../../util/helper';
-// import useForm from '../../../hooks/useForms';
-import { todoFormFields, datePickerInput } from './todoFormConfig';
-import { useModal } from '../../../context/ModalContext';
-// import PhotoUploader from '../../PhotoUploader/PhotoUploader';
-// import FileUploader from '../../FileUploader/FileUploader';
-// import SelectInput from '@mui/material/Select/SelectInput';
-import ModalFormWrapper from '../../ModalFormWrapper/ModalFormWrapper';
+import { useModal } from '@context/ModalContext';
+import PhotoUploader from '@components/PhotoUploader/PhotoUploader';
+import FileUploader from '@components/FileUploader/FileUploader';
+import useInput from '@hooks/useInput';
 
-/**
- * @description A form component to create or edit a todo item. It takes `initialValues` and `action` as props.
- * @param {object} initialValues - An object with keys corresponding to the input fields and values to be used
- * as the initial values of the form.
- * @param {function} action - A function that will be called when the form is submitted.
- * @returns {React.Component} A form component with the todo item fields.
- */
+// Shallow comparison to avoid unnecessary resets
+const shallowEqual = (obj1, obj2) => {
+  if (!obj1 || !obj2) return false;
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+  if (keys1.length !== keys2.length) return false;
+  return keys1.every((key) => obj1[key] === obj2[key]);
+};
 
-import useInput from '../../../hooks/useInput';
-export default function TodoForm({ initialValues = {}, action }) {
-  // let todoObject = {
-  //   ...inputReducer([...todoFormFields, ...datePickerInput]),
-  // };
-  // // if (Object.keys(initialValues).length > 0) {
-  // //   todoObject = {
-  // //     ...inputReducer([...todoFormFields, ...datePickerInput]),
-  // //     ...Object.fromEntries(
-  // //       Object.entries(initialValues).map(([key, value]) => [key, { value }])
-  // //     ),
-  // //   };
-  // }
+export default function TodoForm({ initialValues, action }) {
+  const {
+    inputs,
+    setInputs,
+    errors,
+    validateAll,
+    onChangeHandler,
+    onBlurHandler,
+  } = useInput(initialValues, todoValidator);
 
-  const { inputs, errors, onChangeHandler, onBlurHandler, clickOnConfirm } =
-    useInput(
-      {
-        title: '',
-        content: '',
-        startDate: '',
-        dueDate: '',
-      },
-      {
-        title: (value, _) => (value.length === 0 ? 'Title is required' : ''),
-        content: (value, _) =>
-          value.length === 0 ? 'content is required' : '',
-        startDate: (value, inputs) => {
-          const date = new Date(value);
-          const currentDate = new Date();
-          if (date < currentDate) {
-            return 'Start date cannot be in the past';
-          }
-          const endDate = new Date(inputs.dueDate);
-          if (date > endDate) {
-            return 'Start date cannot be greater than end date';
-          }
-          if (date === endDate) {
-            return 'Start date cannot be equal to end date';
-          }
+  const { closeModal } = useModal();
 
-          return '';
-        },
-      }
-    );
+  // Update inputs only when initialValues changes
+  useEffect(() => {
+    if (!initialValues || Object.keys(initialValues).length === 0) return;
 
-  const { modal } = useModal();
+    setInputs(initialValues);
+  }, [initialValues, setInputs]);
+
   const submitHandler = async (e) => {
-    clickOnConfirm();
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-    modal.onConfirm(data);
+    e.preventDefault();
+    if (!validateAll()) return;
+
+    const formData = new FormData();
+    Object.entries(inputs).forEach(([key, value]) => {
+      if (Array.isArray(value) && value[0] instanceof File) {
+        value.forEach((file) => formData.append(key, file));
+      } else {
+        formData.append(key, value);
+      }
+    });
+
+    await action(formData);
+    closeModal();
   };
 
-  // useEffect(() => {
-  //   setInputs((prev) => {
-  //     return {
-  //       ...prev,
-  //       files: { value: '', name: 'files' },
-  //       coverPhoto: { value: '', name: 'files' },
-  //     };
-  //   });
-  // }, [setInputs]);
-
   return (
-    <>
-      <ModalFormWrapper onSubmit={submitHandler}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={12} md={12}>
-            {todoFormFields.map((field) => (
+    <ModalFormWrapper onSubmit={submitHandler}>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          {todoFormFields.map((field) => (
+            <RenderInput
+              key={field.name}
+              field={field}
+              value={inputs[field.name] || ''}
+              error={errors[field.name]}
+              onChangeHandler={onChangeHandler}
+              onBlurHandler={onBlurHandler}
+            />
+          ))}
+        </Grid>
+
+        <Grid item xs={12}>
+          <Box
+            sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 2 }}
+          >
+            {datePickerInput.map((field) => (
               <RenderInput
                 key={field.name}
                 field={field}
-                value={inputs[field.name]}
+                value={inputs[field.name] || ''}
                 error={errors[field.name]}
                 onChangeHandler={onChangeHandler}
                 onBlurHandler={onBlurHandler}
               />
             ))}
-          </Grid>
-
-          <Grid item xs={12} sm={12} md={12}>
-            <Box
-              sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 2 }}
-            >
-              {datePickerInput.map((field) => (
-                <RenderInput
-                  key={field.name}
-                  field={field}
-                  value={inputs[field.name]}
-                  error={errors[field.name]}
-                  onChangeHandler={onChangeHandler}
-                  onBlurHandler={onBlurHandler}
-                />
-              ))}
-            </Box>
-          </Grid>
-          {/* <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 1,
-              mb: 2,
-            }}
-          >
-            <FileUploader files={files} setFiles={setFiles} name={'files'} />
-          </Box> */}
-
-          {/* <PhotoUploader
-            maxFileSizeMB={5}
-            setCoverPhoto={setCoverPhoto}
-            coverPhoto={coverPhoto}
-            name={'coverPhoto'}
-          /> */}
+          </Box>
         </Grid>
-      </ModalFormWrapper>
-    </>
+
+        <Grid item xs={12}>
+          <Box
+            sx={{ display: 'flex', justifyContent: 'center', gap: 1, mb: 2 }}
+          >
+            <FileUploader
+              files={inputs.files}
+              setFiles={setInputs}
+              name="files"
+            />
+          </Box>
+        </Grid>
+
+        <Grid item xs={12}>
+          <PhotoUploader
+            maxFileSizeMB={5}
+            setCoverPhoto={setInputs}
+            coverPhoto={inputs.coverPhoto}
+            name="coverPhoto"
+          />
+        </Grid>
+      </Grid>
+    </ModalFormWrapper>
   );
 }

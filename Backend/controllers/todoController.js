@@ -1,19 +1,21 @@
 const Todo = require('../models/Todo');
 const File = require('../models/Files');
 const bucket = require('../configs/firebase');
+const { createTodoSchema } = require('../validation/todo');
 const { uploadFile } = require('../configs/firebaseUtil');
 exports.createTodo = async (req, res) => {
   const user = req.user;
   try {
+    const { error } = createTodoSchema.validate(req.body);
     const { title, content, startDate, dueDate } = req.body;
-    if (!title || !content || !startDate || !dueDate) {
+    if (error) {
       return res
         .status(400)
-        .json({ message: 'Title and content are required' });
+        .json({ message: cleanJoiErrorMessage(error.message) });
     }
 
-    const fileList = req.files || [];
-
+    let files = [];
+    let fileIdList = [];
     const todo = await Todo.create({
       title,
       content,
@@ -22,32 +24,43 @@ exports.createTodo = async (req, res) => {
       user: user._id,
     });
 
-    let files = [];
-    if (fileList.length > 0) {
+    if (Object.values(req.files).length > 0) {
       files = await Promise.all(
-        fileList.map(async (file) => {
-          const { originalname: filename, size, mimetype } = file;
-
-          const filePathName =
-            file.fieldname === 'files'
-              ? `todos/${todo._id}/${Date.now()}-${filename}`
-              : `todos/${todo._id}/cover_photo/${Date.now()}-${filename}`;
-          const url = await uploadFile(file, filePathName);
-
-          return await File.create({
-            filename,
-            path: url,
-            size,
-            fileType: mimetype,
-            type: 'Todo support document',
-            user: user._id,
-            todo: todo._id,
-          });
-        })
+        Object.entries(req.files).flatMap(([key, uploadFiles]) =>
+          uploadFiles.map(async (file) => {
+            const { originalname: filename, size, mimetype } = file;
+            const filePathName =
+              key === 'files'
+                ? `todos/${todo._id}/${Date.now()}-${filename}`
+                : `todos/${todo._id}/cover_photo/${Date.now()}-${filename}`;
+            const type =
+              key === 'files' ? 'Todo support document' : 'Cover photo';
+            const url = await uploadFile(file, filePathName);
+            const uploadedFile = await File.create({
+              filename,
+              path: url,
+              size,
+              fileType: mimetype,
+              type: type,
+              user: user._id,
+              todo: todo._id,
+            });
+            fileIdList.push(uploadedFile._id);
+            return uploadedFile;
+          })
+        )
       );
     }
 
-    return res.status(201).json({ todo, files });
+    let updatedTodo;
+    if (fileIdList.length > 0) {
+      updatedTodo = await Todo.findByIdAndUpdate(
+        todo._id,
+        { $set: { files: fileIdList } },
+        { new: true }
+      );
+    }
+    return res.status(201).json({ todo: updatedTodo, files });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Server error: ' + error.message });
@@ -66,10 +79,12 @@ exports.listTodos = async (req, res) => {
       .sort({
         createdAt: -1,
       })
-      .populate('user', 'name email')
+      .populate('user')
+      .populate('files')
       .skip(skip)
       .limit(limit)
       .exec();
+
     const total = await Todo.countDocuments({ user: userId, isDeleted: false });
     res.json({
       page,

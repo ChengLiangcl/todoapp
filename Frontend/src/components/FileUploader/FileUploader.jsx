@@ -26,13 +26,9 @@ export default function FileUploader({
 }) {
   const [error, setError] = React.useState('');
   const text = buttonText || 'Upload files';
-
-  React.useEffect(() => {
-    console.log(files);
-  }, [files]);
+  console.log(files);
   const handleFileChange = (event) => {
     setError('');
-
     const selectedFiles = Array.from(event.target.files);
 
     const oversizedFiles = selectedFiles.filter(
@@ -54,7 +50,10 @@ export default function FileUploader({
       new Map(combinedFiles.map((file) => [file.name, file])).values()
     );
 
-    setFiles(uniqueFiles);
+    setFiles((prev) => ({
+      ...prev,
+      [name]: uniqueFiles,
+    }));
   };
 
   const handleDelete = (id) => {
@@ -97,7 +96,7 @@ export default function FileUploader({
             {files.map((file, idx) => (
               <Chip
                 key={idx}
-                label={file.name}
+                label={file.name || file.filename}
                 onDelete={() => handleDelete(idx)}
                 color="primary"
                 variant="outlined"

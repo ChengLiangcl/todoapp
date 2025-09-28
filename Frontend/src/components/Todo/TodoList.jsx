@@ -31,6 +31,7 @@ const TodoList = ({ todos, onDelete }) => {
               dueDate={todo.dueDate}
               onDelete={() => onDelete(todo._id)}
               onUpdate={() => onDelete(todo._id)}
+              todo={todo}
             />
           </Grid>
         ))}

@@ -7,9 +7,6 @@ const useForm = (initialValues) => {
   const [files, setFiles] = useState([]);
   const [coverPhoto, setCoverPhoto] = useState(null);
 
-  useEffect(() => {
-    console.log(files);
-  }, [files]);
   // Initialize form inputs with validationFn
   const createFormInputs = useCallback((inputFields) => {
     const result = inputFields.reduce((acc, { name, validationFn }) => {

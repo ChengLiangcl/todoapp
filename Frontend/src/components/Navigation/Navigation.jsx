@@ -2,7 +2,7 @@ import React from 'react';
 import AppBar from '@mui/material/AppBar';
 import NavItem from '../NavItem/NavItem';
 import Toolbar from '@mui/material/Toolbar';
-import UserAvatar from '../Avatar/UserAvatar';
+import UserAvatar from '../UserAvatar/UserAvatar';
 import Box from '@mui/material/Box';
 import Logo from '../Logo/Logo';
 function Navigation({ pages, settings, navigationColor, tooltipTitle, logo }) {

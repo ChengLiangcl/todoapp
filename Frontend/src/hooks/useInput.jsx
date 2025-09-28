@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 const useInput = (initialValue, validators) => {
   const [inputs, setInputs] = useState(initialValue);
-  const [errors, setErrors] = useState(initialValue);
+  const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+
   const onChangeHandler = (e, name) => {
     if (e.target) {
       const { name, value } = e.target;
@@ -10,7 +11,6 @@ const useInput = (initialValue, validators) => {
         ...prevInputs,
         [name]: value,
       }));
-
       if (validators[name] && touched[name]) {
         const error = validators[name](value, inputs);
         setErrors((prevErrors) => {
@@ -27,7 +27,11 @@ const useInput = (initialValue, validators) => {
       }));
     }
   };
-
+  const updateInputs = useCallback((updater) => {
+    setInputs((prev) =>
+      typeof updater === 'function' ? updater(prev) : updater
+    );
+  }, []);
   const onBlurHandler = (e) => {
     const { name } = e.target;
 
@@ -48,14 +52,16 @@ const useInput = (initialValue, validators) => {
       });
     }
   };
-
   const validateAll = () => {
-    return Object.values(errors).every((error) => error === '');
-  };
-
-  const clickOnConfirm = () => {
-    if (!validateAll()) return;
-    reset();
+    const updatedErrors = {};
+    let isValid = true;
+    for (const key in inputs) {
+      const error = validators[key] ? validators[key](inputs[key], inputs) : '';
+      updatedErrors[key] = error;
+      if (error) isValid = false;
+    }
+    setErrors(updatedErrors);
+    return isValid;
   };
 
   const reset = () => {
@@ -71,7 +77,8 @@ const useInput = (initialValue, validators) => {
     onBlurHandler,
     validateAll,
     reset,
-    clickOnConfirm,
+    setInputs,
+    updateInputs,
   };
 };
 

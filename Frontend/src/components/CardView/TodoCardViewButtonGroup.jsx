@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react';
-import Button from '../Button/Button';
-import ModalButton from '../ModalButton/ModalButton';
-import TodoModal from '../Todo/TodoModal';
 import { useModal } from '../../context/ModalContext';
 import { deleteTodos, fetchTodos, updateTodo } from '../../store/todoSlice';
 import { useDispatch } from 'react-redux';
+import Button from '@components/Button/Button';
+import ModalButton from '@components/ModalButton/ModalButton';
+import TodoModal from '@components/Todo/TodoModal';
 const TodoCardViewButtonGroup = ({ onComplete, id }) => {
   const { modal, openDialog, setDialog } = useModal();
   const dispatch = useDispatch();

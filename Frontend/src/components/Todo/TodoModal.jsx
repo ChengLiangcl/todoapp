@@ -1,34 +1,40 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import TodoForm from '../Form/todoForm/todoForm';
 import { Box } from '@mui/material';
 import Modal from '../Modal/Modal';
 import { useModal } from '../../context/ModalContext';
+import { useSelector } from 'react-redux';
+
 const TodoModal = ({ title, id = null, action }) => {
-  const [initialValues, setInitialValues] = useState({});
-  const { modal, setModal } = useModal();
+  const { modal } = useModal();
+  const todos = useSelector((state) => state.todo);
 
-  useEffect(() => {
-    if (id) {
-    } else {
-      setInitialValues({});
-    }
-  }, [id]);
-
-  useEffect(() => {
-    setModal((prev) => ({
-      ...prev,
-      onConfirm: (data) => action(data), // captures the current form data
-    }));
-  }, [setModal, action]);
+  // Memoize the current todo to avoid unnecessary re-renders
+  const currentTodo = useMemo(() => {
+    if (!id) return {};
+    const result = todos?.todos?.find((todo) => todo._id === id);
+    return result
+      ? {
+          title: result.title,
+          content: result.content,
+          startDate: result.startDate,
+          dueDate: result.dueDate,
+          files: result.files.filter(
+            (file) => file.type === 'Todo support document'
+          ),
+          coverPhoto: result.files.filter(
+            (file) => file.type === 'Cover photo'
+          ),
+        }
+      : {};
+  }, [id, todos?.todos]);
 
   return (
-    <>
-      <Modal title={title} isOpen={modal.isOpen}>
-        <Box sx={{ p: 2 }}>
-          <TodoForm initialValues={initialValues} action={action} />
-        </Box>
-      </Modal>
-    </>
+    <Modal title={title} isOpen={modal.isOpen}>
+      <Box sx={{ p: 2 }}>
+        <TodoForm initialValues={currentTodo} action={action} />
+      </Box>
+    </Modal>
   );
 };
 

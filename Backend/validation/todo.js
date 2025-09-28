@@ -8,3 +8,10 @@ exports.todoSchema = Joi.object({
   startDate: Joi.date().required(),
   dueDate: Joi.date().required(),
 }).unknown(false);
+
+exports.createTodoSchema = Joi.object({
+  title: Joi.string().required(),
+  content: Joi.string().required(),
+  startDate: Joi.date().required(),
+  dueDate: Joi.date().required(),
+}).unknown(false);

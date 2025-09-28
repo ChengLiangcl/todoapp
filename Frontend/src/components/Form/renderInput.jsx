@@ -28,7 +28,7 @@ export default function RenderInput({
         {...field}
         fullWidth
         value={value}
-        error={error === '' ? false : true}
+        error={!error ? false : true}
         type={type}
         helperText={error}
         onChange={onChangeHandler}
