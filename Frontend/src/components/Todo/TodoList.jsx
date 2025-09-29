@@ -22,7 +22,7 @@ const TodoList = ({ todos, onDelete }) => {
     >
       <Grid container justifyContent="flex-start">
         {todos?.map((todo, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
+          <Grid item xs={12} sm={6} md={6} key={index}>
             <CardView
               id={todo._id}
               title={todo.title}

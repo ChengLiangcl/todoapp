@@ -9,7 +9,6 @@ const TodoModal = ({ title, id = null, action }) => {
   const { modal } = useModal();
   const todos = useSelector((state) => state.todo);
 
-  // Memoize the current todo to avoid unnecessary re-renders
   const currentTodo = useMemo(() => {
     if (!id) return {};
     const result = todos?.todos?.find((todo) => todo._id === id);

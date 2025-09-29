@@ -26,7 +26,6 @@ export default function FileUploader({
 }) {
   const [error, setError] = React.useState('');
   const text = buttonText || 'Upload files';
-  console.log(files);
   const handleFileChange = (event) => {
     setError('');
     const selectedFiles = Array.from(event.target.files);
@@ -57,7 +56,13 @@ export default function FileUploader({
   };
 
   const handleDelete = (id) => {
-    setFiles((prev) => prev.filter((_, i) => i !== id));
+    setFiles((prev) => {
+      const updatedFiles = prev[name].filter((file) => file.id !== id);
+      return {
+        ...prev,
+        [name]: updatedFiles,
+      };
+    });
   };
 
   return (
@@ -97,7 +102,7 @@ export default function FileUploader({
               <Chip
                 key={idx}
                 label={file.name || file.filename}
-                onDelete={() => handleDelete(idx)}
+                onDelete={() => handleDelete(file.id)}
                 color="primary"
                 variant="outlined"
               />

@@ -38,9 +38,6 @@ export default function PhotoUploader({
     }
   }, [setPreviewUrl, coverPhoto]);
 
-  React.useEffect(() => {
-    console.log(previewUrl);
-  }, [previewUrl]);
   const handleFileChange = (event) => {
     setError('');
     const selectedFile = event.target.files[0];
@@ -115,7 +112,6 @@ export default function PhotoUploader({
         />
       </Button>
 
-      {/* Error message */}
       {error && (
         <Typography
           color="error"

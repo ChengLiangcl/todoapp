@@ -86,7 +86,7 @@ const TodoPage = () => {
         />
       </Box>
 
-      {modal.isOpen && (
+      {modal?.isOpen && (
         <TodoModal title="Add Todo Item" action={addTodoAction} />
       )}
 

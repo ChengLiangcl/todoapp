@@ -12,8 +12,8 @@ const TodoFilter = () => {
         boxShadow: 1,
       }}
     >
-      <Grid container spacing={1} alignItems="center">
-        <Grid item xs={12} sm={3} md={3}>
+      <Grid container spacing={2} alignItems="center">
+        <Grid item xs={12} sm={2} md={2}>
           <FormControl fullWidth size="small">
             <Input
               options={['All', 'Work', 'Personal', 'Urgent']}
@@ -23,7 +23,7 @@ const TodoFilter = () => {
             />
           </FormControl>
         </Grid>
-        <Grid item xs={12} sm={3} md={4}>
+        <Grid item xs={12} sm={2} md={4}>
           <Input
             variant="outlined"
             size="small"
@@ -42,7 +42,7 @@ const TodoFilter = () => {
           />
         </Grid>
 
-        <Grid item xs={12} sm={3} md="auto">
+        <Grid item xs={12} sm={3} md={2}>
           <Button
             variant="contained"
             color="primary"
