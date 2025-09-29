@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { useModal } from '../../context/ModalContext';
-import { deleteTodos, fetchTodos, updateTodo } from '../../store/todoSlice';
+import { deleteTodos, completeTodo, updateTodo } from '../../store/todoSlice';
 import { useDispatch } from 'react-redux';
 import Button from '@components/Button/Button';
 import ModalButton from '@components/ModalButton/ModalButton';
@@ -53,7 +53,18 @@ const TodoCardViewButtonGroup = ({ onComplete, id }) => {
       />
       <Button
         btnName="Complete"
-        onClick={() => onComplete(id)}
+        onClick={() =>
+          openDialog(
+            () => dispatch(completeTodo(id)),
+            setDialog((prev) => ({
+              ...prev,
+              isOpen: true,
+              title:
+                'Are you sure you want to mark this todo item as complete?',
+              dialogContentText: 'Click confirm to complete and no to cancel',
+            }))
+          )
+        }
         sx={{
           ...hoverEffect,
           backgroundColor: '#e0f2f1',

@@ -1,8 +1,18 @@
 import Grid from '@mui/material/Grid';
 import CardView from '../CardView/CardView';
 import Paper from '@mui/material/Paper';
-
 const TodoList = ({ todos, onDelete }) => {
+  const setTag = (todo) => {
+    const dueDate = new Date(todo.dueDate);
+    const currentDate = new Date();
+    if (todo.isCompleted) return ['Completed', 'success'];
+    if (!todo.isCompleted && dueDate >= currentDate)
+      return ['Ongoing', 'primary'];
+    if (!todo.isCompleted && dueDate < currentDate)
+      return ['Overdue', 'warning'];
+
+    return ['Uncategorized', 'warning'];
+  };
   return (
     <Paper
       elevation={2}
@@ -21,20 +31,25 @@ const TodoList = ({ todos, onDelete }) => {
       }}
     >
       <Grid container justifyContent="flex-start">
-        {todos?.map((todo, index) => (
-          <Grid item xs={12} sm={6} md={6} key={index}>
-            <CardView
-              id={todo._id}
-              title={todo.title}
-              content={todo.content}
-              startDate={todo.startDate}
-              dueDate={todo.dueDate}
-              onDelete={() => onDelete(todo._id)}
-              onUpdate={() => onDelete(todo._id)}
-              todo={todo}
-            />
-          </Grid>
-        ))}
+        {todos?.map((todo, index) => {
+          const [tagName, color] = setTag(todo);
+          return (
+            <Grid item xs={12} sm={6} md={4} key={index}>
+              <CardView
+                id={todo._id}
+                title={todo.title}
+                content={todo.content}
+                startDate={todo.startDate}
+                dueDate={todo.dueDate}
+                onDelete={() => onDelete(todo._id)}
+                onUpdate={() => onDelete(todo._id)}
+                todo={todo}
+                color={color}
+                tagName={tagName}
+              />
+            </Grid>
+          );
+        })}
       </Grid>
     </Paper>
   );

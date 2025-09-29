@@ -60,9 +60,10 @@ exports.createTodo = async (req, res) => {
         { new: true }
       );
     }
-    return res.status(201).json({ todo: updatedTodo, files });
+    return res
+      .status(201)
+      .json({ todo: updatedTodo ? updatedTodo : todo, files });
   } catch (error) {
-    console.error(error);
     return res.status(500).json({ message: 'Server error: ' + error.message });
   }
 };
@@ -159,5 +160,27 @@ exports.searchTodo = async (req, res) => {
     return res.status(200).json({ todos });
   } catch (error) {
     return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.completeTodo = async (req, res) => {
+  const user = req.user;
+  if (!req.params.id)
+    return res.status(400).json({ message: 'Todo id is required' });
+  try {
+    const todo = await Todo.findOne({
+      _id: req.params.id,
+      isDeleted: false,
+      user: user._id,
+    });
+    if (!todo) return res.status(404).json({ message: 'Todo not found' });
+    const completedTodo = await Todo.findByIdAndUpdate(
+      { _id: req.params.id },
+      { isCompleted: !todo.isCompleted },
+      { new: true }
+    );
+    return res.status(200).json({ completedTodo });
+  } catch (error) {
+    return res.status(500).json({ error });
   }
 };

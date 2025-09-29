@@ -58,6 +58,14 @@ export const updateTodo = createAsyncThunk('todos/updateTodo', async (todo) => {
   };
 });
 
+export const completeTodo = createAsyncThunk(
+  'todos/completeTodo',
+  async (id) => {
+    const data = await putRequest(`todos/complete/${id}`);
+    return data;
+  }
+);
+
 const todoSlice = createSlice({
   name: 'todos',
   initialState: {
@@ -125,6 +133,17 @@ const todoSlice = createSlice({
         state.deletedTodo = [action.payload.data.message];
       })
       .addCase(deleteTodos.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(completeTodo.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(completeTodo.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(completeTodo.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

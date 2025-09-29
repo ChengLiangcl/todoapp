@@ -12,6 +12,8 @@ import { fetchTodos, addTodo } from '../store/todoSlice';
 import Banner from '../components/Alert/Banner';
 import TodoNotifier from '../components/SnackBar/SnackBar';
 import { useModal } from '../context/ModalContext';
+import Tabs from '@components/Tab/Tabs';
+import { Margin } from '@mui/icons-material';
 
 const TodoPage = () => {
   const dispatch = useDispatch();
@@ -22,6 +24,7 @@ const TodoPage = () => {
   const [, setSelectedTodoId] = useState(null);
   const { modal } = useModal();
 
+  const [tab, setTab] = useState('All');
   useEffect(() => {
     dispatch(fetchTodos({ page: currentPage, limit: 9 }));
   }, [dispatch, currentPage]);
@@ -35,6 +38,29 @@ const TodoPage = () => {
     },
     [dispatch]
   );
+
+  const filteredTodos = React.useMemo(() => {
+    switch (tab) {
+      case 'All':
+        return todos;
+      case 'Ongoing':
+        return todos.filter(
+          (todo) => !todo.isCompleted && new Date(todo.dueDate) > new Date()
+        );
+      case 'Completed':
+        return todos.filter((todo) => todo.isCompleted);
+      case 'Overdue':
+        return todos.filter(
+          (todo) => !todo.isCompleted && new Date(todo.dueDate) <= new Date()
+        );
+      default:
+        return todos;
+    }
+  }, [todos, tab]);
+
+  useEffect(() => {
+    console.log('loadTodos', todos); // loadTodos()
+  }, [todos]);
 
   const renderEmptyContent = () => (
     <Box
@@ -60,7 +86,6 @@ const TodoPage = () => {
   return (
     <>
       <TodoFilter />
-
       {error && (
         <Banner
           sx={{ marginTop: '20px' }}
@@ -83,14 +108,20 @@ const TodoPage = () => {
             dialogContentText:
               'Click confirm to exit, if you click no changes will be saved.',
           }}
+          btnDivStyle={{ mr: 2, mb: 2 }}
         />
       </Box>
+      <Tabs
+        TabItems={['All', 'Ongoing', 'Overdue', 'Completed']}
+        tab={tab}
+        setTab={setTab}
+      />
 
       {modal?.isOpen && (
         <TodoModal title="Add Todo Item" action={addTodoAction} />
       )}
 
-      {todos.length === 0 ? (
+      {filteredTodos.length === 0 ? (
         renderEmptyContent()
       ) : (
         <>
@@ -103,7 +134,7 @@ const TodoPage = () => {
             }}
           >
             <TodoList
-              todos={todos}
+              todos={filteredTodos}
               onDelete={handleDeleteClick}
               onUpdate={handleUpdate}
             />

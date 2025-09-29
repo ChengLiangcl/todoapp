@@ -28,7 +28,7 @@ export default function ModalButton({
   };
 
   return (
-    <div style={btnDivStyle}>
+    <div sx={btnDivStyle}>
       <Button btnName={buttonText} onClick={clickHandler} sx={buttonStyle} />
       <AlertDialog
         dialogContentText={dialog.dialogContentText}
