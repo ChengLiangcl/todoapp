@@ -3,3 +3,4 @@ Backend/.env
 .env
 Backend/configs/serviceAccountKey.jsonBackend/configs/serviceAccountKey.json
 Backend/.env
+Backend/coverage

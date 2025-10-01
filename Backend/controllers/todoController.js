@@ -101,12 +101,14 @@ exports.listTodos = async (req, res) => {
 
 exports.deleteTodo = async (req, res) => {
   try {
+    if (!req.params.id)
+      return res.status(400).json({ message: 'Todo id is required' });
     const todo = await Todo.findOne({ _id: req.params.id, isDeleted: false });
     if (!todo) return res.status(404).json({ message: 'Todo not found' });
-
-    if (!todo.user.equals(req.user._id)) {
+    if (!todo.user.equals(req.user._id))
       return res.status(403).json({ message: 'Not authorized' });
-    }
+    if (todo.isDeleted)
+      return res.status(400).json({ message: 'Todo already deleted' });
     todo.isDeleted = true;
     todo.deletedAt = new Date();
     await todo.save();
@@ -114,7 +116,8 @@ exports.deleteTodo = async (req, res) => {
       .status(200)
       .json({ message: `Deleted todo with title ${todo.title} successfully` });
   } catch (error) {
-    return res.status(500).json({ message: 'Server error' });
+    const code = error.status || 500;
+    return res.status(code).json({ message: error.message || 'Server error' });
   }
 };
 
@@ -159,7 +162,8 @@ exports.searchTodo = async (req, res) => {
       return res.status(404).json({ message: 'Todo not found', todos: [] });
     return res.status(200).json({ todos });
   } catch (error) {
-    return res.status(500).json({ message: 'Server error' });
+    const code = error.status || 500;
+    return res.status(code).json({ message: error.message || 'Server error' });
   }
 };
 
@@ -181,6 +185,6 @@ exports.completeTodo = async (req, res) => {
     );
     return res.status(200).json({ completedTodo });
   } catch (error) {
-    return res.status(500).json({ error });
+    return res.status(error.status).json({ error: error.message });
   }
 };
