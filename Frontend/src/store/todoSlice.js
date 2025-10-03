@@ -8,8 +8,11 @@ import {
 
 export const fetchTodos = createAsyncThunk(
   'todos/fetchTodos',
-  async ({ page, limit }) => {
-    const data = await getRequest(`todos?page=${page}&limit=${limit}`);
+  async ({ page, limit, status }) => {
+    const statusQuery = !status ? '' : `&status=${status}`;
+    const data = await getRequest(
+      `todos?page=${page}&limit=${limit}${statusQuery}`
+    );
     return { todos: data?.data, totalPage: data?.totalPages, page, limit };
   }
 );
@@ -76,10 +79,16 @@ const todoSlice = createSlice({
     deletedTodo: [],
     loading: false,
     error: null,
+    paginationPage: {},
   },
   reducers: {
     deleteTodoItem: (state, action) => {
       state.todos = state.todos.filter((todo) => todo._id !== action.payload);
+    },
+    setPaginationPage: (state, action) => {
+      const { status, page } = action.payload;
+      state.paginationPage[status] = page;
+      console.log(state.paginationPage);
     },
   },
   extraReducers: (builder) => {
@@ -150,5 +159,5 @@ const todoSlice = createSlice({
   },
 });
 
-export const { deleteTodoItem } = todoSlice.actions;
+export const { deleteTodoItem, setPaginationPage } = todoSlice.actions;
 export default todoSlice.reducer;

@@ -90,13 +90,12 @@ describe('GET /todos', () => {
       json: jest.fn(),
       status: jest.fn().mockReturnThis(),
     };
-    const execMock = jest.fn().mockResolvedValue(mockTodos);
     todoFindMockFn = todoModel.find.mockReturnValue({
       sort: jest.fn().mockReturnThis(),
       populate: jest.fn().mockReturnThis(),
       skip: jest.fn().mockReturnThis(),
       limit: jest.fn().mockReturnThis(),
-      exec: execMock,
+      lean: jest.fn().mockResolvedValue(mockTodos),
     });
     jest.clearAllMocks();
   });
@@ -104,13 +103,13 @@ describe('GET /todos', () => {
   it('should return paginated todos corretly', async () => {
     const mockTotal = 5;
     todoFindMockFn();
-    todoModel.countDocuments.mockResolvedValue(mockTotal);
+    todoModel.estimatedDocumentCount.mockResolvedValue(mockTotal);
     await todoController.listTodos(req, res);
     expect(todoModel.find).toHaveBeenCalledWith({
       user: '68835dc6673a3afa29b41e0c',
       isDeleted: false,
     });
-    expect(todoModel.countDocuments).toHaveBeenCalledWith({
+    expect(todoModel.estimatedDocumentCount).toHaveBeenCalledWith({
       user: '68835dc6673a3afa29b41e0c',
       isDeleted: false,
     });
@@ -119,7 +118,7 @@ describe('GET /todos', () => {
       page: 1,
       limit: 2,
       total: mockTotal,
-      totalPages: Math.ceil(mockTotal / 2),
+      totalPages: Math.ceil(mockTotal / 2) - 1,
       data: mockTodos,
     });
   });
@@ -131,7 +130,7 @@ describe('GET /todos', () => {
       populate: jest.fn().mockReturnThis(),
       skip: jest.fn().mockReturnThis(),
       limit: jest.fn().mockReturnThis(),
-      exec: jest.fn().mockRejectedValue(new Error(errorMessage)),
+      lean: jest.fn().mockRejectedValue(new Error(errorMessage)),
     });
 
     await todoController.listTodos(req, res);

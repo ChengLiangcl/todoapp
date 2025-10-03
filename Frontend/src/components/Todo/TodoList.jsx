@@ -1,7 +1,10 @@
 import Grid from '@mui/material/Grid';
 import CardView from '../CardView/CardView';
 import Paper from '@mui/material/Paper';
+import { useSelector } from 'react-redux';
+
 const TodoList = ({ todos, onDelete }) => {
+  const { todos: todoList } = useSelector((state) => state.todo);
   const setTag = (todo) => {
     const dueDate = new Date(todo.dueDate);
     const currentDate = new Date();
@@ -10,7 +13,6 @@ const TodoList = ({ todos, onDelete }) => {
       return ['Ongoing', 'primary'];
     if (!todo.isCompleted && dueDate < currentDate)
       return ['Overdue', 'warning'];
-
     return ['Uncategorized', 'warning'];
   };
   return (
@@ -31,7 +33,7 @@ const TodoList = ({ todos, onDelete }) => {
       }}
     >
       <Grid container justifyContent="flex-start">
-        {todos?.map((todo, index) => {
+        {todoList?.map((todo, index) => {
           const [tagName, color] = setTag(todo);
           return (
             <Grid item xs={12} sm={6} md={4} key={index}>

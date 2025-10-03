@@ -27,6 +27,7 @@ export { default as CustomizedPagination } from './Pagination/CustomizedPaginati
 export { default as PhotoUploader } from './PhotoUploader/PhotoUploader';
 export { default as SnackBar } from './SnackBar/SnackBar';
 export { default as Tabs } from './Tab/Tabs';
+export { default as Tag } from './Tag/Tag';
 export { default as Test } from './TestComponent/Test';
 export { default as TextLink } from './TextLink/TextLink';
 export { default as DeleteTodoDialog } from './Todo/DeleteTodoDialog';
@@ -35,4 +36,3 @@ export { default as TodoList } from './Todo/TodoList';
 export { default as TodoModal } from './Todo/TodoModal';
 export { default as Uploader } from './Uploader/Uploader';
 export { default as UserAvatar } from './UserAvatar/UserAvatar';
-export * as index from './index';

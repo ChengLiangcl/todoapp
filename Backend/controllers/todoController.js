@@ -3,6 +3,8 @@ const File = require('../models/Files');
 const bucket = require('../configs/firebase');
 const { createTodoSchema } = require('../validation/todo');
 const { uploadFile } = require('../configs/firebaseUtil');
+const newrelic = require('newrelic');
+
 exports.createTodo = async (req, res) => {
   const user = req.user;
   try {
@@ -67,34 +69,71 @@ exports.createTodo = async (req, res) => {
     return res.status(500).json({ message: 'Server error: ' + error.message });
   }
 };
+
 exports.listTodos = async (req, res) => {
   try {
-    let { page = 1, limit = 12 } = req.query;
+    let { page = 1, limit = 12, status = '' } = req.query;
     page = +page;
     limit = +limit;
 
     const skip = (page - 1) * limit;
     const userId = req.user._id;
 
-    const todos = await Todo.find({ user: userId, isDeleted: false })
-      .sort({
-        createdAt: -1,
-      })
+    let listResultQuery;
+    switch (status.toLowerCase()) {
+      case 'ongoing':
+        listResultQuery = {
+          dueDate: { $gte: new Date() },
+          isCompleted: false,
+        };
+        break;
+      case 'overdue':
+        listResultQuery = {
+          dueDate: { $lt: new Date() },
+          isCompleted: false,
+        };
+        break;
+      case 'completed':
+        listResultQuery = { isCompleted: true };
+        break;
+      default:
+        listResultQuery = {};
+    }
+
+    const [todos, total] = await Promise.all([
+      Todo.find({ user: userId, isDeleted: false, ...listResultQuery })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        // .populate('user', 'name email') // only required fields
+        .populate('files', 'fileName url') // only required fields
+        .lean(),
+
+      Todo.countDocuments({
+        user: userId,
+        isDeleted: false,
+        ...listResultQuery,
+      }),
+    ]);
+
+    const mongoQuery = { ...listResultQuery, user: userId, isDeleted: false };
+
+    (req.mongodbQuery = `db.todos.find(${JSON.stringify(mongoQuery)})
+      .sort({ createdAt: -1 })
       .populate('user')
       .populate('files')
-      .skip(skip)
-      .limit(limit)
-      .exec();
-
-    const total = await Todo.countDocuments({ user: userId, isDeleted: false });
-    res.json({
-      page,
-      limit,
-      total,
-      totalPages: Math.ceil(total / limit),
-      data: todos,
-    });
+      .skip(${skip})
+      .limit(${limit})
+      .exec()`.replace(/\s+/g, ' ')).replace(/\s+/g, ''),
+      res.json({
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit) - 1,
+        data: todos,
+      });
   } catch (error) {
+    newrelic.noticeError(error, { location: 'listTodos' });
     return res.status(500).json({ message: 'Server error: ' + error.message });
   }
 };
@@ -186,5 +225,37 @@ exports.completeTodo = async (req, res) => {
     return res.status(200).json({ completedTodo });
   } catch (error) {
     return res.status(error.status).json({ error: error.message });
+  }
+};
+
+// controllers/todoController.js
+exports.generateTodos = async (req, res) => {
+  try {
+    const userId = req.user._id; // associate todos with this user
+    const todos = [];
+
+    for (let i = 1; i <= 1000; i++) {
+      todos.push({
+        title: `Sample Todo #${i}`,
+        content: `This is the content for todo number ${i}`,
+        startDate: new Date(),
+        dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // tomorrow
+        isDeleted: false,
+        isCompleted: false,
+        user: userId,
+      });
+    }
+
+    const result = await Todo.insertMany(todos);
+
+    res.json({
+      message: '1000 Todos generated successfully',
+      insertedCount: result.length,
+    });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: 'Error generating todos', error: error.message });
   }
 };

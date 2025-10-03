@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React from 'react';
 import { Box, Typography } from '@mui/material';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import CustomizedPagination from '../components/Pagination/CustomizedPagination';
 import TodoList from '../components/Todo/TodoList';
@@ -8,59 +8,25 @@ import TodoModal from '../components/Todo/TodoModal';
 import TodoFilter from '../components/Todo/TodoFilter';
 import Loader from '../components/Loader/Loader';
 import ModalButton from '../components/ModalButton/ModalButton';
-import { fetchTodos, addTodo } from '../store/todoSlice';
 import Banner from '../components/Alert/Banner';
 import TodoNotifier from '../components/SnackBar/SnackBar';
 import { useModal } from '../context/ModalContext';
 import Tabs from '@components/Tab/Tabs';
-import { Margin } from '@mui/icons-material';
+import useTodos from '@hooks/useTodos';
 
 const TodoPage = () => {
-  const dispatch = useDispatch();
-  const { todos, loading, error, totalPage, deletedTodo } = useSelector(
-    (state) => state.todo
-  );
-  const [currentPage, setCurrentPage] = useState(1);
-  const [, setSelectedTodoId] = useState(null);
+  const { todos, loading, error, totalPage, deletedTodo, paginationPage } =
+    useSelector((state) => state.todo);
+  // const [, setSelectedTodoId] = useState(null);
   const { modal } = useModal();
-
-  const [tab, setTab] = useState('All');
-  useEffect(() => {
-    dispatch(fetchTodos({ page: currentPage, limit: 9 }));
-  }, [dispatch, currentPage]);
-
-  const handleDeleteClick = (id) => setSelectedTodoId(id);
-  const handleUpdate = (id) => setSelectedTodoId(id);
-
-  const addTodoAction = useCallback(
-    async (form) => {
-      await dispatch(addTodo(form));
-    },
-    [dispatch]
-  );
-
-  const filteredTodos = React.useMemo(() => {
-    switch (tab) {
-      case 'All':
-        return todos;
-      case 'Ongoing':
-        return todos.filter(
-          (todo) => !todo.isCompleted && new Date(todo.dueDate) > new Date()
-        );
-      case 'Completed':
-        return todos.filter((todo) => todo.isCompleted);
-      case 'Overdue':
-        return todos.filter(
-          (todo) => !todo.isCompleted && new Date(todo.dueDate) <= new Date()
-        );
-      default:
-        return todos;
-    }
-  }, [todos, tab]);
-
-  useEffect(() => {
-    console.log('loadTodos', todos); // loadTodos()
-  }, [todos]);
+  const {
+    handleDeleteClick,
+    handleUpdate,
+    addTodoAction,
+    handlePageChange,
+    setTab,
+    tab,
+  } = useTodos('All');
 
   const renderEmptyContent = () => (
     <Box
@@ -121,7 +87,7 @@ const TodoPage = () => {
         <TodoModal title="Add Todo Item" action={addTodoAction} />
       )}
 
-      {filteredTodos.length === 0 ? (
+      {todos.length === 0 ? (
         renderEmptyContent()
       ) : (
         <>
@@ -134,7 +100,7 @@ const TodoPage = () => {
             }}
           >
             <TodoList
-              todos={filteredTodos}
+              todos={todos}
               onDelete={handleDeleteClick}
               onUpdate={handleUpdate}
             />
@@ -143,8 +109,8 @@ const TodoPage = () => {
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
             <CustomizedPagination
               count={totalPage}
-              currentPage={currentPage}
-              onPageChange={(page) => setCurrentPage(page)}
+              currentPage={paginationPage[tab] || 1}
+              onPageChange={(page) => handlePageChange(page)}
             />
           </Box>
         </>

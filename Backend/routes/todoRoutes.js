@@ -42,5 +42,6 @@ router.get('/:id', isAuth, todoController.getTodoById);
 router.put('/:id', isAuth, todoController.updateTodo);
 router.delete('/:id', isAuth, todoController.deleteTodo);
 router.put('/complete/:id', isAuth, todoController.completeTodo);
+router.post('/generate-todos', isAuth, todoController.generateTodos);
 
 module.exports = router;
