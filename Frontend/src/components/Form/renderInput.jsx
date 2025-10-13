@@ -7,9 +7,9 @@ export default function RenderInput({
   error,
   onChangeHandler,
   onBlurHandler,
+  disabled = false,
 }) {
   const { Icon, name, type } = field;
-
   return (
     <Box
       key={name}
@@ -33,6 +33,7 @@ export default function RenderInput({
         helperText={error}
         onChange={onChangeHandler}
         onBlur={onBlurHandler}
+        disabled={disabled}
       />
     </Box>
   );

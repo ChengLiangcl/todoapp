@@ -9,6 +9,7 @@ export default function ModalButton({
   btnDivStyle = {},
   isDialogRequired = false,
   dialogConfig = {},
+  disabled = false,
   id,
 }) {
   const { setModal, openModal, dialog, setDialog } = useModal();
@@ -24,7 +25,12 @@ export default function ModalButton({
     if (id) {
       setModal((prev) => ({ ...prev, modalId: id }));
     }
-    openModal();
+    //If try to disable the form
+    if (disabled) {
+      openModal(null, true);
+    } else {
+      openModal();
+    }
   };
 
   return (

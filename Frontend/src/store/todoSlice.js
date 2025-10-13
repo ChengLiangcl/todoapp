@@ -88,7 +88,6 @@ const todoSlice = createSlice({
     setPaginationPage: (state, action) => {
       const { status, page } = action.payload;
       state.paginationPage[status] = page;
-      console.log(state.paginationPage);
     },
   },
   extraReducers: (builder) => {

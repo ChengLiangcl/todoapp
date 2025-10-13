@@ -14,14 +14,6 @@ import FileUploader from '@components/FileUploader/FileUploader';
 import useInput from '@hooks/useInput';
 
 // Shallow comparison to avoid unnecessary resets
-const shallowEqual = (obj1, obj2) => {
-  if (!obj1 || !obj2) return false;
-  const keys1 = Object.keys(obj1);
-  const keys2 = Object.keys(obj2);
-  if (keys1.length !== keys2.length) return false;
-  return keys1.every((key) => obj1[key] === obj2[key]);
-};
-
 export default function TodoForm({ initialValues, action }) {
   const {
     inputs,
@@ -32,7 +24,7 @@ export default function TodoForm({ initialValues, action }) {
     onBlurHandler,
   } = useInput(initialValues, todoValidator);
 
-  const { closeModal } = useModal();
+  const { closeModal, modal } = useModal();
 
   // Update inputs only when initialValues changes
   useEffect(() => {
@@ -70,6 +62,7 @@ export default function TodoForm({ initialValues, action }) {
               error={errors[field.name]}
               onChangeHandler={onChangeHandler}
               onBlurHandler={onBlurHandler}
+              disabled={modal.isFormDisabled}
             />
           ))}
         </Grid>
@@ -86,6 +79,7 @@ export default function TodoForm({ initialValues, action }) {
                 error={errors[field.name]}
                 onChangeHandler={onChangeHandler}
                 onBlurHandler={onBlurHandler}
+                disabled={modal.isFormDisabled}
               />
             ))}
           </Box>
@@ -98,6 +92,7 @@ export default function TodoForm({ initialValues, action }) {
             <FileUploader
               files={inputs.files}
               setFiles={setInputs}
+              disabled={modal.isFormDisabled}
               name="files"
             />
           </Box>
@@ -106,6 +101,7 @@ export default function TodoForm({ initialValues, action }) {
         <Grid item xs={12}>
           <PhotoUploader
             maxFileSizeMB={5}
+            disabled={modal.isFormDisabled}
             setCoverPhoto={setInputs}
             coverPhoto={inputs.coverPhoto}
             name="coverPhoto"

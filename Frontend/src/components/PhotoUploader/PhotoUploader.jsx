@@ -26,6 +26,7 @@ export default function PhotoUploader({
   onChange,
   coverPhoto,
   setCoverPhoto,
+  disabled = false,
 }) {
   const [previewUrl, setPreviewUrl] = React.useState(
     () => coverPhoto?.[0]?.path || null
@@ -101,6 +102,7 @@ export default function PhotoUploader({
       <Button
         component="label"
         variant="contained"
+        disabled={disabled}
         startIcon={<CloudUploadIcon />}
       >
         {buttonText}

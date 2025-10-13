@@ -23,6 +23,7 @@ export default function FileUploader({
   name,
   maxFiles = 5,
   maxFileSizeMB = 5,
+  disabled = false,
 }) {
   const [error, setError] = React.useState('');
   const text = buttonText || 'Upload files';
@@ -70,6 +71,7 @@ export default function FileUploader({
       <Button
         component="label"
         variant="contained"
+        disabled={disabled}
         startIcon={<CloudUploadIcon />}
       >
         {text}

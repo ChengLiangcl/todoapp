@@ -1,6 +1,6 @@
 const todoValidator = {
-  title: (value, _) => (value.length === 0 ? 'Title is required' : ''),
-  content: (value, _) => (value.length === 0 ? 'content is required' : ''),
+  title: (value, _) => (value?.length === 0 ? 'Title is required' : ''),
+  content: (value, _) => (value?.length === 0 ? 'content is required' : ''),
   startDate: (value, inputs) => {
     const date = new Date(value);
     const currentDate = new Date();

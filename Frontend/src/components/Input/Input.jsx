@@ -118,6 +118,7 @@ const Input = ({
               {...params}
               name={name}
               error={error}
+              disabled={restProps.disabled || false}
               fullWidth
               helperText={error ? restProps.helperText : ''}
               onBlur={(e) => {

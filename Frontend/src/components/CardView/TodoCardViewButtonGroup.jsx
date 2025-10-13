@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import Button from '@components/Button/Button';
 import ModalButton from '@components/ModalButton/ModalButton';
 import TodoModal from '@components/Todo/TodoModal';
-const TodoCardViewButtonGroup = ({ onComplete, id }) => {
+const TodoCardViewButtonGroup = ({ tagName, id }) => {
   const { modal, openDialog, setDialog } = useModal();
   const dispatch = useDispatch();
 
@@ -24,77 +24,107 @@ const TodoCardViewButtonGroup = ({ onComplete, id }) => {
     },
   };
 
+  const hoveringStyle = (bgColor, hoverBgColor, color = '#fff') => ({
+    ...hoverEffect,
+    backgroundColor: bgColor,
+    color: color,
+    '&:hover': {
+      ...hoverEffect['&:hover'],
+      backgroundColor: hoverBgColor,
+      color: color,
+    },
+  });
+
+  const buttonConfig = [
+    tagName !== 'Completed' && {
+      type: 'button',
+      btnName: 'Delete',
+      isDialogRequired: true,
+      action: () =>
+        openDialog(
+          () => dispatch(deleteTodos(id)),
+          setDialog((prev) => ({
+            ...prev,
+            isOpen: true,
+            title: 'Are you sure you want to delete this todo item?',
+            dialogContentText: 'Click confirm to delete and no to cancel',
+          }))
+        ),
+      sx: hoveringStyle('d32f2f', 'b71c1c'),
+    },
+    tagName !== 'Completed' && {
+      type: 'button',
+      btnName: 'Complete',
+      action: () =>
+        openDialog(
+          () => dispatch(completeTodo(id)),
+          setDialog((prev) => ({
+            ...prev,
+            isOpen: true,
+            title: 'Are you sure you want to complete this todo item?',
+            dialogContentText: 'Click confirm to complete and no to cancel',
+          }))
+        ),
+      sx: hoveringStyle('#388e3c', '#2e7d32'),
+    },
+    tagName !== 'Completed' && {
+      type: 'modalButton',
+      btnName: 'Update',
+      isDialogRequired: true,
+      dialogConfig: {
+        title: 'Are you sure you want to cancel update this todo item?',
+        dialogContentText: 'Click confirm to update and no to cancel',
+      },
+      buttonStyle: hoveringStyle('#bbdefb', '#90caf9', '#1976d2'),
+    },
+    tagName === 'Completed' && {
+      type: 'modalButton',
+      btnName: 'View',
+      disabled: true,
+      isDialogRequired: true,
+      dialogConfig: {
+        title: 'Are you sure you want to exit',
+        dialogContentText: 'Click confirm to exit and no to cancel',
+      },
+      buttonStyle: hoveringStyle('#bbdefb', '#90caf9', '#1976d2'),
+    },
+  ];
+
   return (
     <>
-      <Button
-        btnName="Delete"
-        id={id}
-        onClick={() =>
-          openDialog(
-            () => dispatch(deleteTodos(id)),
-            setDialog((prev) => ({
-              ...prev,
-              isOpen: true,
-              title: 'Are you sure you want to delete this todo item?',
-              dialogContentText: 'Click confirm to delete and no to cancel',
-            }))
-          )
+      {buttonConfig.map((button, index) => {
+        if (button?.type === 'button') {
+          return (
+            <Button
+              key={index}
+              btnName={button.btnName}
+              onClick={button.action}
+              sx={{
+                ...button.sx,
+                mx: 1,
+              }}
+            />
+          );
         }
-        sx={{
-          ...hoverEffect,
-          backgroundColor: '#d32f2f',
-          color: '#fff',
-          '&:hover': {
-            ...hoverEffect['&:hover'],
-            backgroundColor: '#b71c1c',
-            color: '#fff',
-          },
-        }}
-      />
-      <Button
-        btnName="Complete"
-        onClick={() =>
-          openDialog(
-            () => dispatch(completeTodo(id)),
-            setDialog((prev) => ({
-              ...prev,
-              isOpen: true,
-              title:
-                'Are you sure you want to mark this todo item as complete?',
-              dialogContentText: 'Click confirm to complete and no to cancel',
-            }))
-          )
+        if (button?.type === 'modalButton') {
+          return (
+            <ModalButton
+              key={index}
+              id={id}
+              isDialogRequired={button.isDialogRequired}
+              dialogConfig={button.dialogConfig}
+              buttonText={button.btnName}
+              buttonStyle={button.buttonStyle}
+              disabled={button.disabled}
+              sx={{
+                ...button.sx,
+                mx: 1,
+              }}
+            />
+          );
         }
-        sx={{
-          ...hoverEffect,
-          backgroundColor: '#e0f2f1',
-          color: '#2e7d32',
-          '&:hover': {
-            ...hoverEffect['&:hover'],
-            backgroundColor: '#b2dfdb',
-            color: '#2e7d32',
-          },
-        }}
-      />
-      <ModalButton
-        id={id}
-        isDialogRequired={true}
-        dialogConfig={{
-          title: 'Are you sure you want to cancel update this todo item?',
-          dialogContentText: 'Click confirm to update and no to cancel',
-        }}
-        buttonText="Update"
-        buttonStyle={{
-          ...hoverEffect,
-          backgroundColor: '#bbdefb',
-          color: '#1976d2',
-          '&:hover': {
-            ...hoverEffect['&:hover'],
-            backgroundColor: '#90caf9',
-            color: '#1976d2',
-          },
-        }}
-      />
+        return null;
+      })}
 
       {modal.isOpen && modal.modalId === id && (
         <TodoModal

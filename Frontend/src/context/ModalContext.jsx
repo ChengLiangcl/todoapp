@@ -37,6 +37,7 @@ export const ModalProvider = ({ children }) => {
     isOpen: false,
     onConfirm: null,
     modalId: null,
+    isFormDisabled: false,
   });
   const [dialog, setDialog] = useState({
     isOpen: false,
@@ -46,18 +47,24 @@ export const ModalProvider = ({ children }) => {
   });
 
   // Open modal
-  const openModal = (onConfirm = null) => {
+  const openModal = (onConfirm = null, disableForm = false) => {
     setModal((prev) => {
       return {
         ...prev,
         isOpen: true,
         onConfirm,
+        isFormDisabled: disableForm,
       };
     });
   };
 
   const closeModal = () =>
-    setModal({ isOpen: false, onConfirm: null, modalId: null });
+    setModal({
+      isOpen: false,
+      onConfirm: null,
+      modalId: null,
+      isFormDisabled: false,
+    });
 
   // Open dialog
   const openDialog = (onConfirm = null) =>

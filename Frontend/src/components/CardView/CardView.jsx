@@ -48,6 +48,7 @@ export default function CardView({
           onComplete={onComplete}
           onUpdate={onUpdate}
           todo={todo}
+          tagName={props.tagName}
         />
       </CardActions>
     </Card>
