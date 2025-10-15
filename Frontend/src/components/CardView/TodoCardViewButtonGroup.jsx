@@ -50,7 +50,7 @@ const TodoCardViewButtonGroup = ({ tagName, id }) => {
             dialogContentText: 'Click confirm to delete and no to cancel',
           }))
         ),
-      sx: hoveringStyle('d32f2f', 'b71c1c'),
+      sx: hoveringStyle('#d32f2f', '#b71c1c'),
     },
     tagName !== 'Completed' && {
       type: 'button',

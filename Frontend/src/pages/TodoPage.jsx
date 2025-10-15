@@ -13,6 +13,7 @@ import TodoNotifier from '../components/SnackBar/SnackBar';
 import { useModal } from '../context/ModalContext';
 import Tabs from '@components/Tab/Tabs';
 import useTodos from '@hooks/useTodos';
+import { useMemo } from 'react';
 
 const TodoPage = () => {
   const { todos, loading, error, totalPage, deletedTodo, paginationPage } =
@@ -27,6 +28,11 @@ const TodoPage = () => {
     setTab,
     tab,
   } = useTodos('All');
+
+  const memoizedNotifier = useMemo(() => {
+    if (!deletedTodo) return null;
+    return <TodoNotifier sx={{ marginTop: '20px' }} message={deletedTodo} />;
+  }, [deletedTodo]);
 
   const renderEmptyContent = () => (
     <Box
@@ -61,10 +67,9 @@ const TodoPage = () => {
         />
       )}
 
-      {deletedTodo.map((item, index) => (
-        <TodoNotifier key={index} sx={{ marginTop: '20px' }} message={item} />
-      ))}
-
+      {deletedTodo && (
+        <TodoNotifier sx={{ marginTop: '20px' }} message={deletedTodo} />
+      )}
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
         <ModalButton
           buttonText="Add Todo Item"
@@ -82,11 +87,9 @@ const TodoPage = () => {
         tab={tab}
         setTab={setTab}
       />
-
       {modal?.isOpen && (
         <TodoModal title="Add Todo Item" action={addTodoAction} />
       )}
-
       {todos.length === 0 ? (
         renderEmptyContent()
       ) : (

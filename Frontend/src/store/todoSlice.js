@@ -27,6 +27,7 @@ export const fetchCurrentTodo = createAsyncThunk(
 
 export const deleteTodos = createAsyncThunk('todos/deleteTodos', async (id) => {
   const data = await deleteRequest(`todos/${id}`);
+
   return { data, id };
 });
 
@@ -76,7 +77,7 @@ const todoSlice = createSlice({
     page: 1,
     totalPage: 0,
     limit: 0,
-    deletedTodo: [],
+    deletedTodo: '',
     loading: false,
     error: null,
     paginationPage: {},
@@ -88,6 +89,9 @@ const todoSlice = createSlice({
     setPaginationPage: (state, action) => {
       const { status, page } = action.payload;
       state.paginationPage[status] = page;
+    },
+    clearDeletedTodo: (state) => {
+      state.deletedTodo = '';
     },
   },
   extraReducers: (builder) => {
@@ -138,7 +142,7 @@ const todoSlice = createSlice({
         const id = action.payload.id;
         state.todos = state.todos.filter((todo) => todo._id !== id);
         state.loading = false;
-        state.deletedTodo = [action.payload.data.message];
+        state.deletedTodo = action.payload.data.message;
       })
       .addCase(deleteTodos.rejected, (state, action) => {
         state.loading = false;
@@ -158,5 +162,6 @@ const todoSlice = createSlice({
   },
 });
 
-export const { deleteTodoItem, setPaginationPage } = todoSlice.actions;
+export const { deleteTodoItem, setPaginationPage, clearDeletedTodo } =
+  todoSlice.actions;
 export default todoSlice.reducer;

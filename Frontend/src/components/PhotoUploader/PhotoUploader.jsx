@@ -66,7 +66,7 @@ export default function PhotoUploader({
       onChange(selectedFile);
     }
   };
-
+  console.log(previewUrl);
   return (
     <div style={{ textAlign: 'center' }}>
       <div

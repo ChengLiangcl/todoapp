@@ -12,8 +12,14 @@ const useTodos = (tabName) => {
 
   useEffect(() => {
     const status = tab === 'All' ? {} : { status: tab };
-    dispatch(fetchTodos({ page: currentPage, limit: 9, ...status }));
-  }, [dispatch, currentPage, tab]);
+    dispatch(
+      fetchTodos({
+        page: paginationPage[tab] || 1,
+        limit: 9,
+        ...status,
+      })
+    );
+  }, [dispatch, currentPage, tab, paginationPage]);
 
   const addTodoAction = useCallback(
     async (form) => {
