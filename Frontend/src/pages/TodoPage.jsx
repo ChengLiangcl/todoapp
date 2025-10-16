@@ -13,26 +13,30 @@ import TodoNotifier from '../components/SnackBar/SnackBar';
 import { useModal } from '../context/ModalContext';
 import Tabs from '@components/Tab/Tabs';
 import useTodos from '@hooks/useTodos';
-import { useMemo } from 'react';
-
+import Button from '../components/Button/Button';
+import RotateLeftOutlinedIcon from '@mui/icons-material/RotateLeftOutlined';
+import PaginationTable from '@components/Table/PaginationTable';
 const TodoPage = () => {
-  const { todos, loading, error, totalPage, deletedTodo, paginationPage } =
-    useSelector((state) => state.todo);
+  const {
+    todos,
+    loading,
+    error,
+    totalPage,
+    deletedTodo,
+    paginationPage,
+    todoView,
+  } = useSelector((state) => state.todo);
   // const [, setSelectedTodoId] = useState(null);
   const { modal } = useModal();
   const {
     handleDeleteClick,
+    handleViewChange,
     handleUpdate,
     addTodoAction,
     handlePageChange,
     setTab,
     tab,
   } = useTodos('All');
-
-  const memoizedNotifier = useMemo(() => {
-    if (!deletedTodo) return null;
-    return <TodoNotifier sx={{ marginTop: '20px' }} message={deletedTodo} />;
-  }, [deletedTodo]);
 
   const renderEmptyContent = () => (
     <Box
@@ -70,7 +74,19 @@ const TodoPage = () => {
       {deletedTodo && (
         <TodoNotifier sx={{ marginTop: '20px' }} message={deletedTodo} />
       )}
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, gap: 2 }}>
+        <Button
+          onClick={() => handleViewChange(todoView)}
+          btnName={
+            todoView === 'cardView'
+              ? 'Switch to table view'
+              : 'Switch to card list view'
+          }
+          startIcon={<RotateLeftOutlinedIcon />}
+        >
+          Clear All
+        </Button>
         <ModalButton
           buttonText="Add Todo Item"
           isDialogRequired={true}
@@ -90,33 +106,50 @@ const TodoPage = () => {
       {modal?.isOpen && (
         <TodoModal title="Add Todo Item" action={addTodoAction} />
       )}
-      {todos.length === 0 ? (
-        renderEmptyContent()
-      ) : (
-        <>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              pb: 5,
-            }}
-          >
-            <TodoList
-              todos={todos}
-              onDelete={handleDeleteClick}
-              onUpdate={handleUpdate}
-            />
-          </Box>
 
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-            <CustomizedPagination
-              count={totalPage}
-              currentPage={paginationPage[tab] || 1}
-              onPageChange={(page) => handlePageChange(page)}
-            />
+      {todoView === 'cardView' &&
+        (todos?.length === 0 ? (
+          renderEmptyContent()
+        ) : (
+          <>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                pb: 5,
+              }}
+            >
+              <TodoList
+                todos={todos}
+                onDelete={handleDeleteClick}
+                onUpdate={handleUpdate}
+              />
+            </Box>
+
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+              <CustomizedPagination
+                count={totalPage}
+                currentPage={paginationPage[tab] || 1}
+                onPageChange={(page) => handlePageChange(page)}
+              />
+            </Box>
+          </>
+        ))}
+
+      {todoView === 'tableView' && (
+        <Box
+          sx={{
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            mt: 4,
+          }}
+        >
+          <Box sx={{ width: '70%' }}>
+            <PaginationTable />
           </Box>
-        </>
+        </Box>
       )}
     </>
   );

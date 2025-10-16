@@ -81,6 +81,7 @@ const todoSlice = createSlice({
     loading: false,
     error: null,
     paginationPage: {},
+    todoView: 'cardView',
   },
   reducers: {
     deleteTodoItem: (state, action) => {
@@ -92,6 +93,10 @@ const todoSlice = createSlice({
     },
     clearDeletedTodo: (state) => {
       state.deletedTodo = '';
+    },
+    setTodoView: (state, action) => {
+      state.todoView =
+        action.payload === 'tableView' ? 'cardView' : 'tableView';
     },
   },
   extraReducers: (builder) => {
@@ -162,6 +167,10 @@ const todoSlice = createSlice({
   },
 });
 
-export const { deleteTodoItem, setPaginationPage, clearDeletedTodo } =
-  todoSlice.actions;
+export const {
+  deleteTodoItem,
+  setPaginationPage,
+  clearDeletedTodo,
+  setTodoView,
+} = todoSlice.actions;
 export default todoSlice.reducer;

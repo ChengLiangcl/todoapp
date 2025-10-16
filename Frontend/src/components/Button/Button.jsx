@@ -20,6 +20,9 @@ const Button = React.forwardRef(
         type={type}
         {...props}
         sx={{ textTransform: 'none', ...props.sx }}
+        startIcon={props.startIcon ? props.startIcon : null}
+        endIcon={props.endIcon ? props.endIcon : null}
+        onClick={props.onClick}
       >
         {btnName}
       </MaterialButton>

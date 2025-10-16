@@ -1,12 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  fetchTodos,
-  addTodo,
-  setPaginationPage,
-  setTodoView,
-} from '../store/todoSlice';
+import { fetchTodos, addTodo, setPaginationPage } from '../../store/todoSlice';
 import { useState, useEffect, useCallback } from 'react';
-const useTodos = (tabName) => {
+const useTodoState = (tabName) => {
   const dispatch = useDispatch();
 
   const { todos, loading, error, totalPage, deletedTodo, paginationPage } =
@@ -18,11 +13,7 @@ const useTodos = (tabName) => {
   useEffect(() => {
     const status = tab === 'All' ? {} : { status: tab };
     dispatch(
-      fetchTodos({
-        page: paginationPage[tab] || 1,
-        limit: 9,
-        ...status,
-      })
+      fetchTodos({ page: paginationPage[tab] || 1, limit: 9, ...status })
     );
   }, [dispatch, currentPage, tab, paginationPage]);
 
@@ -38,9 +29,6 @@ const useTodos = (tabName) => {
     setCurrentPage(page);
     dispatch(setPaginationPage({ status: tab, page }));
   };
-
-  const handleViewChange = (type) => dispatch(setTodoView(type));
-
   return {
     handleDeleteClick,
     handleUpdate,
@@ -56,7 +44,6 @@ const useTodos = (tabName) => {
     handlePageChange,
     tab,
     setTab,
-    handleViewChange,
   };
 };
-export default useTodos;
+export default useTodoState;

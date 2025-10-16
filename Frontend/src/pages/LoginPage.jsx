@@ -61,7 +61,7 @@ const LoginPage = () => {
       setToken(data);
       navigate('/dashboard');
     }
-  }, [bannerVisible, error, navigate]);
+  }, [bannerVisible, error, data, navigate]);
   return loading ? (
     <Loader>Verify your information please wait.....</Loader>
   ) : (
