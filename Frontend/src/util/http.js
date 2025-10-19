@@ -1,8 +1,8 @@
 const backendUrl = process.env.REACT_APP_BACKEND_API_BASE_URL;
-const Authorization = `Bearer ${localStorage.getItem('token')}` || null;
 
 const postRequest = async (url, data, headers = {}) => {
   const isFormData = data instanceof FormData;
+  const Authorization = `Bearer ${localStorage.getItem('token')}` || null;
 
   try {
     const response = await fetch(`${backendUrl}/${url}`, {
@@ -24,6 +24,8 @@ const postRequest = async (url, data, headers = {}) => {
   }
 };
 const getRequest = async (url, headers = {}) => {
+  const Authorization = `Bearer ${localStorage.getItem('token')}` || null;
+
   try {
     const response = await fetch(`${backendUrl}/${url}`, {
       method: 'GET',
@@ -40,6 +42,8 @@ const getRequest = async (url, headers = {}) => {
 };
 
 const putRequest = async (url, data, headers = {}) => {
+  const Authorization = `Bearer ${localStorage.getItem('token')}` || null;
+
   const isFormData = data instanceof FormData;
 
   try {
@@ -60,6 +64,7 @@ const putRequest = async (url, data, headers = {}) => {
 };
 
 const deleteRequest = async (url, headers = {}) => {
+  const Authorization = `Bearer ${localStorage.getItem('token')}` || null;
   try {
     const response = await fetch(`${backendUrl}/${url}`, {
       method: 'DELETE',

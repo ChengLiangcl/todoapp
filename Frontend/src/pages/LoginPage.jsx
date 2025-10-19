@@ -5,16 +5,13 @@ import Input from '../components/Input/Input';
 import { Box, Typography, Container } from '@mui/material';
 import TextLink from '../components/TextLink/TextLink';
 import Button from '../components/Button/Button';
-import {
-  inputList,
-  inputObject,
-} from '../formConfigs/loginForm/loginFormConfig';
-import useForm from '../hooks/useForm';
+import { inputList } from '../formConfigs/loginForm/loginFormConfig';
 import Banner from '../components/Alert/Banner';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import Loader from '../components/Loader/Loader';
 import { setToken } from '../util/auth';
+import Loader from '@components/Loader/Loader';
+import { useLogin } from '../hooks/todos/login/useLogin';
 /**
  * LoginPage component.
  *
@@ -26,30 +23,17 @@ import { setToken } from '../util/auth';
  */
 const LoginPage = () => {
   const {
+    loginData,
     inputs,
-    changeHandler,
-    blurHandler,
-    formSubmissionHandler,
-    data,
-    error,
+    loginError,
+    banner,
     loading,
-  } = useForm(inputObject);
-  const bannerVisible = data || error;
-
-  const bannerType = error ? 'error' : 'success';
-  const alertMessage = error
-    ? error
-    : `Login successfully!, it will redirect to homepage`;
+    errors,
+    loginSubmissionHandler,
+    onBlurHandler,
+    onChangeHandler,
+  } = useLogin();
   const navigate = useNavigate();
-
-  const alert = (
-    <Banner
-      sx={{ marginTop: '20px' }}
-      severity={bannerType}
-      visible={bannerVisible}
-      message={alertMessage}
-    />
-  );
   useEffect(() => {
     document.body.classList.add('login-body');
     return () => {
@@ -57,14 +41,17 @@ const LoginPage = () => {
     };
   }, []);
   useEffect(() => {
-    if (bannerVisible && !error) {
-      setToken(data);
+    if (loginData && !loginError) {
+      setToken(loginData);
       navigate('/dashboard');
     }
-  }, [bannerVisible, error, data, navigate]);
-  return loading ? (
-    <Loader>Verify your information please wait.....</Loader>
-  ) : (
+  }, [loginData, loginError, navigate]);
+
+  if (loading) {
+    return <Loader>Verify your information please wait.....</Loader>;
+  }
+
+  return (
     <Container maxWidth="sm">
       <Typography
         variant="h4"
@@ -73,10 +60,7 @@ const LoginPage = () => {
       >
         Sign In
       </Typography>
-      <Form
-        method="POST"
-        onSubmit={(e) => formSubmissionHandler(e, 'auth/login')}
-      >
+      <Form method="POST" onSubmit={(e) => loginSubmissionHandler(e)}>
         <Box
           sx={{
             padding: '30px',
@@ -95,15 +79,12 @@ const LoginPage = () => {
                 name={input.name}
                 fullWidth
                 required
-                onChange={changeHandler}
-                error={inputs[input.name].error ? true : undefined}
-                onBlur={blurHandler}
-                value={inputs[input.name].value}
+                onChange={onChangeHandler}
+                error={errors[input.name] ? true : undefined}
+                onBlur={onBlurHandler}
+                value={inputs[input.name] ?? ''}
                 sx={{ marginBottom: '20px' }}
-                validationFn={input.validationFn}
-                helperText={
-                  inputs[input.name].error ? inputs[input.name].helperText : ''
-                }
+                helperText={errors[input.name] ? input.helperText : ''}
               />
             );
           })}
@@ -115,7 +96,14 @@ const LoginPage = () => {
             sx={{ padding: '10px 30px' }}
             btnName="Sign In"
           />
-          {alert}
+          {banner.message && (
+            <Banner
+              visible={banner.visible}
+              severity={banner.severity}
+              message={banner.message}
+              sx={{ mt: 2 }}
+            />
+          )}
           <Box
             sx={{
               marginTop: '20px',

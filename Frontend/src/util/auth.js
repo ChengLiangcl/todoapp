@@ -10,7 +10,6 @@ const setToken = (data) => {
 
 const isLoggedIn = () => {
   let token = getToken();
-  console.log(token);
   if (!token) {
     throw redirect('http://localhost:3001/login');
   }
