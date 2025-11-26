@@ -24,6 +24,7 @@ exports.login = async (req, res) => {
     const result = await bcrypt.compare(password, user.password);
 
     if (result == false) {
+      console.log('here');
       return res
         .status(401)
         .json({ message: 'Wrong password, please try again' });

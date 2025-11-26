@@ -18,7 +18,7 @@ export default function CardView({
   ...props
 }) {
   let url =
-    'https://www.planetware.com/wpimages/2019/09/mexico-in-pictures-most-beautiful-places-to-visit-mexico-city.jpg';
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgK6215AJAJEDGxprzHthwlnbP3sn8rylUMg&s';
   if (todo.files !== undefined && todo.files.length > 0) {
     const coverPhotoList = todo.files.filter(
       (file) => file.type === 'Cover photo'

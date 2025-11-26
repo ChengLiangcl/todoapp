@@ -1,6 +1,10 @@
 import React, { useCallback } from 'react';
 import { useModal } from '../../context/ModalContext';
-import { deleteTodos, completeTodo, updateTodo } from '../../store/todoSlice';
+import {
+  deleteTodos,
+  completeTodo,
+  updateTodo,
+} from '../../redux/todos/todoThunks';
 import { useDispatch } from 'react-redux';
 import Button from '@components/Button/Button';
 import ModalButton from '@components/ModalButton/ModalButton';

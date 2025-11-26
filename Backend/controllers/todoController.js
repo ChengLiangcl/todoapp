@@ -79,33 +79,18 @@ exports.listTodos = async (req, res) => {
     const skip = (page - 1) * limit;
     const userId = req.user._id;
 
-    let listResultQuery;
-    switch (status.toLowerCase()) {
-      case 'ongoing':
-        listResultQuery = {
-          dueDate: { $gte: new Date() },
-          isCompleted: false,
-        };
-        break;
-      case 'overdue':
-        listResultQuery = {
-          dueDate: { $lt: new Date() },
-          isCompleted: false,
-        };
-        break;
-      case 'completed':
-        listResultQuery = { isCompleted: true };
-        break;
-      default:
-        listResultQuery = {};
-    }
+    const statusQueryMap = {
+      ongoing: { dueDate: { $gte: new Date() }, isCompleted: false },
+      overdue: { dueDate: { $lt: new Date() }, isCompleted: false },
+      completed: { isCompleted: true },
+    };
+    const listResultQuery = statusQueryMap[status.toLowerCase()] || {};
 
     const [todos, total] = await Promise.all([
       Todo.find({ user: userId, isDeleted: false, ...listResultQuery })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        // .populate('user', 'name email') // only required fields
         .populate('files', 'fileName url') // only required fields
         .lean(),
 
@@ -142,15 +127,21 @@ exports.deleteTodo = async (req, res) => {
   try {
     if (!req.params.id)
       return res.status(400).json({ message: 'Todo id is required' });
+
     const todo = await Todo.findOne({ _id: req.params.id, isDeleted: false });
+
     if (!todo) return res.status(404).json({ message: 'Todo not found' });
+
     if (!todo.user.equals(req.user._id))
       return res.status(403).json({ message: 'Not authorized' });
+
     if (todo.isDeleted)
       return res.status(400).json({ message: 'Todo already deleted' });
+
     todo.isDeleted = true;
     todo.deletedAt = new Date();
     await todo.save();
+
     return res
       .status(200)
       .json({ message: `Deleted todo with title ${todo.title} successfully` });
@@ -163,7 +154,9 @@ exports.deleteTodo = async (req, res) => {
 exports.getTodoById = async (req, res) => {
   try {
     const todo = await Todo.findOne({ _id: req.params.id, isDeleted: false });
+
     if (!todo) return res.status(404).json({ message: 'Todo not found' });
+
     return res.status(200).json({ todo });
   } catch (error) {
     return res.status(500).json({ message: 'Server error' });

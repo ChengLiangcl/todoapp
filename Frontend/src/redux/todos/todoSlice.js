@@ -1,87 +1,28 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
+
 import {
-  getRequest,
-  postRequest,
-  putRequest,
-  deleteRequest,
-} from '../util/http';
+  completeTodo,
+  fetchTodos,
+  deleteTodos,
+  addTodo,
+  updateTodo,
+} from './todoThunks';
+import { saveState, getState } from '../../util/helper';
 
-export const fetchTodos = createAsyncThunk(
-  'todos/fetchTodos',
-  async ({ page, limit, status }) => {
-    const statusQuery = !status ? '' : `&status=${status}`;
-    const data = await getRequest(
-      `todos?page=${page}&limit=${limit}${statusQuery}`
-    );
-    return { todos: data?.data, totalPage: data?.totalPages, page, limit };
-  }
-);
-
-export const fetchCurrentTodo = createAsyncThunk(
-  'todos/fetchCurrentTodo',
-  async (id) => {
-    const data = await getRequest(`todos/${id}`);
-    return data;
-  }
-);
-
-export const deleteTodos = createAsyncThunk('todos/deleteTodos', async (id) => {
-  const data = await deleteRequest(`todos/${id}`);
-
-  return { data, id };
-});
-
-export const addTodo = createAsyncThunk('todos/addTodo', async (todo) => {
-  const data = await postRequest('todos', todo);
-  const { _id, title, content, startDate, dueDate, isCompleted, deletedAt } =
-    data['todo'];
-  return { _id, title, content, startDate, dueDate, isCompleted, deletedAt };
-});
-
-export const updateTodo = createAsyncThunk('todos/updateTodo', async (todo) => {
-  const data = await putRequest(`todos/${todo.id}`, todo);
-  const {
-    _id,
-    title,
-    content,
-    startDate,
-    dueDate,
-    isCompleted,
-    deletedAt,
-    files,
-  } = data['todo'];
-  return {
-    _id,
-    title,
-    content,
-    startDate,
-    dueDate,
-    isCompleted,
-    deletedAt,
-    files,
-  };
-});
-
-export const completeTodo = createAsyncThunk(
-  'todos/completeTodo',
-  async (id) => {
-    const data = await putRequest(`todos/complete/${id}`);
-    return data;
-  }
-);
-
+const cardViewInitialState = {};
 const todoSlice = createSlice({
   name: 'todos',
   initialState: {
     todos: [],
-    page: 1,
-    totalPage: 0,
-    limit: 0,
+    page: getState('page') || {},
+    totalPage: getState('totalPage') || 0,
+    limit: getState('limit') || 0,
     deletedTodo: '',
     loading: false,
     error: null,
     paginationPage: {},
-    todoView: 'cardView',
+    todoView: getState('todoView') || 'cardView',
+    total: getState('total') || 0,
   },
   reducers: {
     deleteTodoItem: (state, action) => {
@@ -97,6 +38,7 @@ const todoSlice = createSlice({
     setTodoView: (state, action) => {
       state.todoView =
         action.payload === 'tableView' ? 'cardView' : 'tableView';
+      saveState('todoView', state.todoView);
     },
   },
   extraReducers: (builder) => {
@@ -107,10 +49,18 @@ const todoSlice = createSlice({
       })
       .addCase(fetchTodos.fulfilled, (state, action) => {
         state.loading = false;
-        state.todos = action.payload.todos;
-        state.totalPage = action.payload.totalPage;
-        state.limit = action.payload.limit;
-        state.page = action.payload.page;
+        const { data, totalPages, page, limit, total } = action.payload;
+        state.todos = data;
+        state.totalPage = totalPages;
+        state.limit = limit;
+        state.total = total;
+        state.page = page;
+
+        saveState('page', state.page);
+        saveState('total', state.total);
+        saveState('totalPage', state.totalPage);
+        saveState('limit', state.limit);
+        saveState('todos', state.todos);
       })
       .addCase(fetchTodos.rejected, (state, action) => {
         state.loading = false;

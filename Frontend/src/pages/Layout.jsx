@@ -18,7 +18,7 @@ function Layout() {
         tooltipTitle="Open settings"
         logo={
           <Logo
-            logoName={'Todo App'}
+            logoName={'Task App'}
             to={'/dashboard'}
             icon={
               <EditNoteIcon

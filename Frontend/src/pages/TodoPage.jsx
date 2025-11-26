@@ -16,16 +16,33 @@ import useTodos from '@hooks/useTodos';
 import Button from '../components/Button/Button';
 import RotateLeftOutlinedIcon from '@mui/icons-material/RotateLeftOutlined';
 import PaginationTable from '@components/Table/PaginationTable';
+import { todoTableColumnsConfig } from '@components/Table/TodoTable/TodoTableConfig';
+import { useEffect } from 'react';
+import {
+  selectTotalPage,
+  selectTodoView,
+  selectTodosLoading,
+  selectTodosError,
+  selectPaginationPage,
+  selectDeletedTodo,
+  selectAllTodos,
+  selectCurrentPage,
+  selectTotalRecords,
+} from '../redux/todos/todoSelectors';
+import { fetchTodos } from '../redux/todos/todoThunks';
+import { useDispatch } from 'react-redux';
 const TodoPage = () => {
-  const {
-    todos,
-    loading,
-    error,
-    totalPage,
-    deletedTodo,
-    paginationPage,
-    todoView,
-  } = useSelector((state) => state.todo);
+  const dispatch = useDispatch();
+  const totalPages = useSelector(selectTotalPage);
+  const loading = useSelector(selectTodosLoading);
+  const error = useSelector(selectTodosError);
+  const paginationPage = useSelector(selectPaginationPage);
+  const todoView = useSelector(selectTodoView);
+  const deletedTodo = useSelector(selectDeletedTodo);
+  const todos = useSelector(selectAllTodos);
+  const page = useSelector(selectCurrentPage);
+  const totalRecords = useSelector(selectTotalRecords);
+
   // const [, setSelectedTodoId] = useState(null);
   const { modal } = useModal();
   const {
@@ -35,6 +52,7 @@ const TodoPage = () => {
     addTodoAction,
     handlePageChange,
     setTab,
+    useTodoTableViewData,
     tab,
   } = useTodos('All');
 
@@ -129,7 +147,7 @@ const TodoPage = () => {
 
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
               <CustomizedPagination
-                count={totalPage}
+                count={totalPages}
                 currentPage={paginationPage[tab] || 1}
                 onPageChange={(page) => handlePageChange(page)}
               />
@@ -147,7 +165,15 @@ const TodoPage = () => {
           }}
         >
           <Box sx={{ width: '70%' }}>
-            <PaginationTable />
+            <PaginationTable
+              columns={todoTableColumnsConfig}
+              rows={useTodoTableViewData}
+              page={page}
+              totalCount={totalRecords}
+              fetchingFn={(tablePage, tableLimit) => {
+                dispatch(fetchTodos({ page: tablePage, limit: tableLimit }));
+              }}
+            />
           </Box>
         </Box>
       )}

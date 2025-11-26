@@ -33,30 +33,22 @@ export default function TodoForm({ initialValues, action }) {
     setInputs(initialValues);
   }, [initialValues, setInputs]);
 
-  /*************  ✨ Windsurf Command ⭐  *************/
-  /**
-   * Submits the form by creating a new FormData object from the inputs
-   * and then calling the action function with the FormData.
-   * If the form is invalid, it will not be submitted.
-   * @param {Event} e - The event that triggered the submission
-   */
-  /*******  5d6abfaa-2898-4233-b3ba-096fec31b844  *******/ const submitHandler =
-    async (e) => {
-      e.preventDefault();
-      if (!validateAll()) return;
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    if (!validateAll()) return;
 
-      const formData = new FormData();
-      Object.entries(inputs).forEach(([key, value]) => {
-        if (Array.isArray(value) && value[0] instanceof File) {
-          value.forEach((file) => formData.append(key, file));
-        } else {
-          formData.append(key, value);
-        }
-      });
+    const formData = new FormData();
+    Object.entries(inputs).forEach(([key, value]) => {
+      if (Array.isArray(value) && value[0] instanceof File) {
+        value.forEach((file) => formData.append(key, file));
+      } else {
+        formData.append(key, value);
+      }
+    });
 
-      await action(formData);
-      closeModal();
-    };
+    await action(formData);
+    closeModal();
+  };
 
   return (
     <ModalFormWrapper onSubmit={submitHandler}>

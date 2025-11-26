@@ -1,9 +1,9 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { addTodo, setTodoView } from '../../store/todoSlice';
+import { addTodo } from '../../store/todoSlice';
 import { useState, useCallback } from 'react';
 const useTodoAction = () => {
   const dispatch = useDispatch();
-  const { todos, deletedTodo, paginationPage, todoView } = useSelector(
+  const { todos, deletedTodo, paginationPage } = useSelector(
     (state) => state.todo
   );
   const [, setSelectedTodoId] = useState(null);

@@ -2,7 +2,7 @@ import { useSnackbar } from 'notistack';
 import { useEffect } from 'react';
 import { useRef } from 'react';
 import { useDispatch } from 'react-redux';
-import { clearDeletedTodo } from '../../store/todoSlice';
+import { clearDeletedTodo } from '../../redux/todos/todoSlice';
 
 function TodoNotifier({ message, variant = 'success' }) {
   const { enqueueSnackbar } = useSnackbar();

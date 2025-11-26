@@ -20,6 +20,7 @@ export const useLogin = () => {
     severity: '',
     message: '',
   });
+
   const loginSubmissionHandler = async (e) => {
     e.preventDefault();
     setLoading(true);
