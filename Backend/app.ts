@@ -1,12 +1,14 @@
-require('dotenv').config(); // load .env first
-require('newrelic');
-const express = require('express');
-const loggerMiddleware = require('./middleware/logMiddleware');
-const mongoose = require('mongoose');
-const userRouter = require('./routes/userRoutes');
-const authRouter = require('./routes/authRoutes');
-const todoRouter = require('./routes/todoRoutes');
-const connectDB = require('./configs/db');
+// require('newrelic');
+
+import dotenv from 'dotenv';
+dotenv.config();
+import express from 'express';
+import loggerMiddleware from './middleware/logMiddleware';
+import mongoose from 'mongoose';
+import userRouter from './routes/userRoutes';
+import authRouter from './routes/authRoutes';
+import todoRouter from './routes/todoRoutes';
+import connectDB from './configs/db';
 const app = express();
 const cors = require('cors');
 app.use(express.json());

@@ -1,5 +1,6 @@
-require('dotenv').config();
-const admin = require('firebase-admin');
+import dotenv from 'dotenv';
+dotenv.config();
+import admin from 'firebase-admin';
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -7,4 +8,4 @@ admin.initializeApp({
 });
 
 const bucket = admin.storage().bucket();
-module.exports = bucket;
+export default bucket;

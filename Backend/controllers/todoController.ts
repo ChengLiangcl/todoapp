@@ -4,73 +4,79 @@ const bucket = require('../configs/firebase');
 const { createTodoSchema } = require('../validation/todo');
 const { uploadFile } = require('../configs/firebaseUtil');
 const newrelic = require('newrelic');
+import TodoModel from '../models/TodoModel';
+import { createTodoRequestBody } from '../interface/TodoInterface';
+import MessageError from '../error/MessageError';
+import AuthRequest from 'interface/AuthRequest';
+import { cleanJoiErrorMessage } from '../util/cleanJoiErrorMessage';
+import { Response } from 'express';
 
-exports.createTodo = async (req, res) => {
+export const createTodo = async (
+  req: AuthRequest<createTodoRequestBody>,
+  res: Response
+) => {
   const user = req.user;
-  try {
-    const { error } = createTodoSchema.validate(req.body);
-    const { title, content, startDate, dueDate } = req.body;
-    if (error) {
-      return res
-        .status(400)
-        .json({ message: cleanJoiErrorMessage(error.message) });
-    }
+  let messageError: MessageError;
 
-    let files = [];
-    let fileIdList = [];
-    const todo = await Todo.create({
-      title,
-      content,
-      startDate,
-      dueDate,
-      user: user._id,
-    });
-
-    if (Object.values(req.files).length > 0) {
-      files = await Promise.all(
-        Object.entries(req.files).flatMap(([key, uploadFiles]) =>
-          uploadFiles.map(async (file) => {
-            const { originalname: filename, size, mimetype } = file;
-            const filePathName =
-              key === 'files'
-                ? `todos/${todo._id}/${Date.now()}-${filename}`
-                : `todos/${todo._id}/cover_photo/${Date.now()}-${filename}`;
-            const type =
-              key === 'files' ? 'Todo support document' : 'Cover photo';
-            const url = await uploadFile(file, filePathName);
-            const uploadedFile = await File.create({
-              filename,
-              path: url,
-              size,
-              fileType: mimetype,
-              type: type,
-              user: user._id,
-              todo: todo._id,
-            });
-            fileIdList.push(uploadedFile._id);
-            return uploadedFile;
-          })
-        )
-      );
-    }
-
-    let updatedTodo;
-    if (fileIdList.length > 0) {
-      updatedTodo = await Todo.findByIdAndUpdate(
-        todo._id,
-        { $set: { files: fileIdList } },
-        { new: true }
-      );
-    }
-    return res
-      .status(201)
-      .json({ todo: updatedTodo ? updatedTodo : todo, files });
-  } catch (error) {
-    return res.status(500).json({ message: 'Server error: ' + error.message });
+  const { error } = createTodoSchema.validate(req.body);
+  const { title, content, startDate, dueDate } = req.body;
+  if (error) {
+    throw new MessageError(cleanJoiErrorMessage(error.message), 400);
   }
+
+  let files = [];
+  let fileIdList = [];
+  const todo = await TodoModel.create({
+    title,
+    content,
+    startDate,
+    dueDate,
+    user: user._id,
+  });
+
+  if (Object.values(req.files).length > 0) {
+    files = await Promise.all(
+      Object.entries(req.files).flatMap(([key, uploadFiles]) =>
+        uploadFiles.map(async (file) => {
+          const { originalname: filename, size, mimetype } = file;
+          const filePathName =
+            key === 'files'
+              ? `todos/${todo._id}/${Date.now()}-${filename}`
+              : `todos/${todo._id}/cover_photo/${Date.now()}-${filename}`;
+          const type =
+            key === 'files' ? 'Todo support document' : 'Cover photo';
+          const url = await uploadFile(file, filePathName);
+          const uploadedFile = await File.create({
+            filename,
+            path: url,
+            size,
+            fileType: mimetype,
+            type: type,
+            user: user._id,
+            todo: todo._id,
+          });
+          fileIdList.push(uploadedFile._id);
+          return uploadedFile;
+        })
+      )
+    );
+  }
+
+  let updatedTodo;
+  if (fileIdList.length > 0) {
+    updatedTodo = await Todo.findByIdAndUpdate(
+      todo._id,
+      { $set: { files: fileIdList } },
+      { new: true }
+    );
+  }
+
+  return res
+    .status(201)
+    .json({ todo: updatedTodo ? updatedTodo : todo, files });
 };
 
-exports.listTodos = async (req, res) => {
+export const listTodos = async (req, res) => {
   try {
     let { page = 1, limit = 12, status = '' } = req.query;
     page = +page;
@@ -123,7 +129,7 @@ exports.listTodos = async (req, res) => {
   }
 };
 
-exports.deleteTodo = async (req, res) => {
+export const deleteTodo = async (req, res) => {
   try {
     if (!req.params.id)
       return res.status(400).json({ message: 'Todo id is required' });
@@ -151,7 +157,7 @@ exports.deleteTodo = async (req, res) => {
   }
 };
 
-exports.getTodoById = async (req, res) => {
+export const getTodoById = async (req, res) => {
   try {
     const todo = await Todo.findOne({ _id: req.params.id, isDeleted: false });
 
@@ -163,7 +169,7 @@ exports.getTodoById = async (req, res) => {
   }
 };
 
-exports.updateTodo = async (req, res) => {
+export const updateTodo = async (req, res) => {
   try {
     const { id, title, content, startDate, dueDate } = req.body;
     const todo = await Todo.findOneAndUpdate(
@@ -182,7 +188,7 @@ exports.updateTodo = async (req, res) => {
   }
 };
 
-exports.searchTodo = async (req, res) => {
+export const searchTodo = async (req, res) => {
   try {
     const { title, content, category } = req.body;
     const todos = await Todo.find({
@@ -199,7 +205,7 @@ exports.searchTodo = async (req, res) => {
   }
 };
 
-exports.completeTodo = async (req, res) => {
+export const completeTodo = async (req, res) => {
   const user = req.user;
   if (!req.params.id)
     return res.status(400).json({ message: 'Todo id is required' });
@@ -222,7 +228,7 @@ exports.completeTodo = async (req, res) => {
 };
 
 // controllers/todoController.js
-exports.generateTodos = async (req, res) => {
+export const generateTodos = async (req, res) => {
   try {
     const userId = req.user._id; // associate todos with this user
     const todos = [];
@@ -251,4 +257,15 @@ exports.generateTodos = async (req, res) => {
       .status(500)
       .json({ message: 'Error generating todos', error: error.message });
   }
+};
+
+export default {
+  listTodos,
+  createTodo,
+  deleteTodo,
+  getTodoById,
+  updateTodo,
+  searchTodo,
+  completeTodo,
+  generateTodos,
 };

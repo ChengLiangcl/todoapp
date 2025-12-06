@@ -1,7 +1,7 @@
-import { Document, Types } from 'mongoose';
+// types/Todo.ts
+import { Types } from 'mongoose';
 
-// --- 1. Interface ---
-export interface Todo extends Document {
+export type Todo = {
   title: string;
   content: string;
   startDate: Date;
@@ -11,6 +11,4 @@ export interface Todo extends Document {
   isCompleted: boolean;
   user: Types.ObjectId;
   files: Types.ObjectId[];
-  createdAt?: Date;
-  updatedAt?: Date;
-}
+};

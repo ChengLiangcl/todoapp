@@ -1,10 +1,10 @@
-const express = require('express');
+import express from 'express';
 
 const router = express.Router();
-const isAuth = require('../middleware/authMiddleware');
-const userController = require('../controllers/userController');
+import isAuth from '../middleware/authMiddleware';
+import userController from '../controllers/userController';
 router.get('/users', isAuth, userController.getAllUsers);
 // router.post('/users', userController.);
 router.delete('/:id', userController.deleteUser);
 
-module.exports = router;
+export default router;

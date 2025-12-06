@@ -1,5 +1,4 @@
-const bucket = require('../configs/firebase');
-
+import bucket from './firebase';
 const uploadFile = async (file, filePath) => {
   try {
     const { mimetype, buffer } = file;
@@ -13,6 +12,4 @@ const uploadFile = async (file, filePath) => {
   }
 };
 
-module.exports = {
-  uploadFile,
-};
+export { uploadFile };

@@ -1,3 +1,3 @@
-module.exports = cleanJoiErrorMessage = (rawMsg) => {
+export const cleanJoiErrorMessage = (rawMsg) => {
   return rawMsg.replace(/\\?"([^"]+)"\\?/g, '$1');
 };

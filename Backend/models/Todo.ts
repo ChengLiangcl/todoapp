@@ -1,7 +1,6 @@
-// const mongoose = require('mongoose');
-import { Todo } from '../interface/Todo';
-import mongoose, { Schema, Model, model } from 'mongoose';
-const todoSchema: Schema<Todo> = new mongoose.Schema(
+const mongoose = require('mongoose');
+
+const todoSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -24,8 +23,8 @@ const todoSchema: Schema<Todo> = new mongoose.Schema(
       default: false,
     },
     deletedAt: {
-      type: Date,
-      default: null,
+      type: Date, // store the timestamp of deletion
+      default: null, // not deleted yet
     },
     isCompleted: {
       type: Boolean,
@@ -45,6 +44,5 @@ const todoSchema: Schema<Todo> = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Todo: Model<Todo> = model<Todo>('Todo', todoSchema);
-
-export default Todo;
+const Todo = mongoose.model('Todo', todoSchema);
+module.exports = Todo;

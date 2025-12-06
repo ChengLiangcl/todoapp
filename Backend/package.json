@@ -4,9 +4,10 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js",
+    "start": "nodemon app.ts",
     "test": "jest --coverage",
     "test:unit": "jest tests/unit",
+    "dev": "ts-node-dev --respawn --transpile-only app.ts",
     "test:integration": "jest tests/integration --detectOpenHandles"
   },
   "keywords": [],
@@ -32,7 +33,7 @@
     "mockingoose": "^2.16.2",
     "nodemon": "^3.1.10",
     "supertest": "^7.1.1",
-    "typescript": "^5.9.2",
+    "typescript": "^5.9.3",
     "winston": "^3.18.3"
   }
 }

@@ -1,7 +1,7 @@
-const User = require('../models/User');
-const bcrypt = require('bcryptjs');
-const { registerSchema } = require('../validation/user');
-exports.getAllUsers = async (req, res) => {
+import User from '../models/User';
+
+import bcrypt from 'bcryptjs';
+export const getAllUsers = async (req, res) => {
   try {
     if (req.user.role !== 'admin')
       return res.status(403).json({
@@ -14,7 +14,7 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-exports.deleteUser = async (req, res) => {
+export const deleteUser = async (req, res) => {
   const userId = req.params.id;
 
   // Check admin access
@@ -41,4 +41,7 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
-exports.getUserById = async (req, res) => {};
+export default {
+  getAllUsers,
+  deleteUser,
+};

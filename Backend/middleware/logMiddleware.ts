@@ -1,6 +1,5 @@
 // loggerMiddleware.js
-const { v4: uuidv4 } = require('uuid');
-const fetch = require('node-fetch');
+import { v4 as uuidv4 } from 'uuid';
 
 function loggerMiddleware(req, res, next) {
   const start = Date.now();
@@ -56,4 +55,4 @@ function loggerMiddleware(req, res, next) {
   next();
 }
 
-module.exports = loggerMiddleware;
+export default loggerMiddleware;

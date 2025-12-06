@@ -1,9 +1,9 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const todoController = require('../controllers/todoController');
-const isAuth = require('../middleware/authMiddleware');
-const multer = require('multer');
-const path = require('path');
+import todoController from '../controllers/todoController';
+import isAuth from '../middleware/authMiddleware';
+import multer from 'multer';
+import path from 'path';
 
 // Multer storage
 // const storage = multer.diskStorage({
@@ -44,4 +44,4 @@ router.delete('/:id', isAuth, todoController.deleteTodo);
 router.put('/complete/:id', isAuth, todoController.completeTodo);
 router.post('/generate-todos', isAuth, todoController.generateTodos);
 
-module.exports = router;
+export default router;
