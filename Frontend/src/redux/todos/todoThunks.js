@@ -15,7 +15,7 @@ export const fetchTodos = createAsyncThunk(
       `todos?page=${page}&limit=${limit}${statusQuery}`
     );
 
-    return data;
+    return { ...data, status };
     // return { todos: data?.data, totalPage: data?.totalPages, page, limit };
   }
 );

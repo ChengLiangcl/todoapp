@@ -27,9 +27,17 @@ export default function ModalButton({
     }
     //If try to disable the form
     if (disabled) {
-      openModal(null, true);
+      openModal({
+        onConfirm: null,
+        disableForm: true,
+        modalId: id,
+      });
     } else {
-      openModal();
+      openModal({
+        onConfirm: null,
+        disableForm: false,
+        modalId: id,
+      });
     }
   };
 

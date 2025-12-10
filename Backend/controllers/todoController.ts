@@ -1,31 +1,23 @@
-const Todo = require('../models/Todo');
-const File = require('../models/Files');
-const bucket = require('../configs/firebase');
-const { createTodoSchema } = require('../validation/todo');
-const { uploadFile } = require('../configs/firebaseUtil');
-const newrelic = require('newrelic');
+import { createTodoSchema } from '../validation/todo';
 import TodoModel from '../models/TodoModel';
 import { createTodoRequestBody } from '../interface/TodoInterface';
 import MessageError from '../error/MessageError';
 import AuthRequest from 'interface/AuthRequest';
 import { cleanJoiErrorMessage } from '../util/cleanJoiErrorMessage';
 import { Response } from 'express';
+import { uploadTodoFile } from '../helper/fileUpload';
+import { listTodoQuery } from '../interface/TodoInterface';
 
 export const createTodo = async (
   req: AuthRequest<createTodoRequestBody>,
   res: Response
 ) => {
   const user = req.user;
-  let messageError: MessageError;
-
   const { error } = createTodoSchema.validate(req.body);
   const { title, content, startDate, dueDate } = req.body;
   if (error) {
     throw new MessageError(cleanJoiErrorMessage(error.message), 400);
   }
-
-  let files = [];
-  let fileIdList = [];
   const todo = await TodoModel.create({
     title,
     content,
@@ -33,133 +25,83 @@ export const createTodo = async (
     dueDate,
     user: user._id,
   });
-
-  if (Object.values(req.files).length > 0) {
-    files = await Promise.all(
-      Object.entries(req.files).flatMap(([key, uploadFiles]) =>
-        uploadFiles.map(async (file) => {
-          const { originalname: filename, size, mimetype } = file;
-          const filePathName =
-            key === 'files'
-              ? `todos/${todo._id}/${Date.now()}-${filename}`
-              : `todos/${todo._id}/cover_photo/${Date.now()}-${filename}`;
-          const type =
-            key === 'files' ? 'Todo support document' : 'Cover photo';
-          const url = await uploadFile(file, filePathName);
-          const uploadedFile = await File.create({
-            filename,
-            path: url,
-            size,
-            fileType: mimetype,
-            type: type,
-            user: user._id,
-            todo: todo._id,
-          });
-          fileIdList.push(uploadedFile._id);
-          return uploadedFile;
-        })
-      )
-    );
-  }
-
-  let updatedTodo;
-  if (fileIdList.length > 0) {
-    updatedTodo = await Todo.findByIdAndUpdate(
-      todo._id,
-      { $set: { files: fileIdList } },
-      { new: true }
-    );
-  }
-
+  if (!todo) throw new MessageError('Create todo failed', 400);
+  const [updatedTodo, files] = await uploadTodoFile(req.files, user, todo);
   return res
     .status(201)
     .json({ todo: updatedTodo ? updatedTodo : todo, files });
 };
 
-export const listTodos = async (req, res) => {
-  try {
-    let { page = 1, limit = 12, status = '' } = req.query;
-    page = +page;
-    limit = +limit;
+export const listTodos = async (
+  req: AuthRequest<any, listTodoQuery>,
+  res: Response
+) => {
+  let { page = 1, limit = 12, status = '' } = req.query;
+  page = Number(page) || 1;
+  limit = Number(limit) || 12;
+  status = String(status).toLowerCase() || '';
 
-    const skip = (page - 1) * limit;
-    const userId = req.user._id;
+  const skip = (page - 1) * limit;
+  const userId = req.user._id;
 
-    const statusQueryMap = {
-      ongoing: { dueDate: { $gte: new Date() }, isCompleted: false },
-      overdue: { dueDate: { $lt: new Date() }, isCompleted: false },
-      completed: { isCompleted: true },
-    };
-    const listResultQuery = statusQueryMap[status.toLowerCase()] || {};
+  const statusQueryMap = {
+    ongoing: { dueDate: { $gte: new Date() }, isCompleted: false },
+    overdue: { dueDate: { $lt: new Date() }, isCompleted: false },
+    completed: { isCompleted: true },
+  };
+  const listResultQuery = statusQueryMap[status] || {};
 
-    const [todos, total] = await Promise.all([
-      Todo.find({ user: userId, isDeleted: false, ...listResultQuery })
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .populate('files', 'fileName url') // only required fields
-        .lean(),
-
-      Todo.countDocuments({
-        user: userId,
-        isDeleted: false,
-        ...listResultQuery,
-      }),
-    ]);
-
-    const mongoQuery = { ...listResultQuery, user: userId, isDeleted: false };
-
-    (req.mongodbQuery = `db.todos.find(${JSON.stringify(mongoQuery)})
+  const [todos, total] = await Promise.all([
+    TodoModel.find({ user: userId, isDeleted: false, ...listResultQuery })
       .sort({ createdAt: -1 })
-      .populate('user')
-      .populate('files')
-      .skip(${skip})
-      .limit(${limit})
-      .exec()`.replace(/\s+/g, ' ')).replace(/\s+/g, ''),
-      res.json({
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit) - 1,
-        data: todos,
-      });
-  } catch (error) {
-    newrelic.noticeError(error, { location: 'listTodos' });
-    return res.status(500).json({ message: 'Server error: ' + error.message });
-  }
+      .skip(skip)
+      .limit(limit)
+      .populate('files', 'fileName url') // only required fields
+      .lean(),
+
+    TodoModel.countDocuments({
+      user: userId,
+      isDeleted: false,
+      ...listResultQuery,
+    }),
+  ]);
+
+  res.json({
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit) - 1,
+    data: todos,
+  });
 };
 
-export const deleteTodo = async (req, res) => {
-  try {
-    if (!req.params.id)
-      return res.status(400).json({ message: 'Todo id is required' });
+export const deleteTodo = async (req: AuthRequest, res) => {
+  if (!req.params.id) throw new MessageError('Todo id is required', 400);
 
-    const todo = await Todo.findOne({ _id: req.params.id, isDeleted: false });
+  const todo = await TodoModel.findOne({
+    _id: req.params.id,
+    isDeleted: false,
+  });
+  if (!todo) throw new MessageError('Todo not found', 400);
+  if (!todo.user.equals(req.user._id))
+    throw new MessageError('Not authorized', 403);
+  if (todo.isDeleted) throw new MessageError('Todo already deleted', 400);
 
-    if (!todo) return res.status(404).json({ message: 'Todo not found' });
+  todo.isDeleted = true;
+  todo.deletedAt = new Date();
+  await todo.save();
 
-    if (!todo.user.equals(req.user._id))
-      return res.status(403).json({ message: 'Not authorized' });
-
-    if (todo.isDeleted)
-      return res.status(400).json({ message: 'Todo already deleted' });
-
-    todo.isDeleted = true;
-    todo.deletedAt = new Date();
-    await todo.save();
-
-    return res
-      .status(200)
-      .json({ message: `Deleted todo with title ${todo.title} successfully` });
-  } catch (error) {
-    const code = error.status || 500;
-    return res.status(code).json({ message: error.message || 'Server error' });
-  }
+  return res
+    .status(200)
+    .json({ message: `Deleted todo with title ${todo.title} successfully` });
 };
 
 export const getTodoById = async (req, res) => {
   try {
-    const todo = await Todo.findOne({ _id: req.params.id, isDeleted: false });
+    const todo = await TodoModel.findOne({
+      _id: req.params.id,
+      isDeleted: false,
+    });
 
     if (!todo) return res.status(404).json({ message: 'Todo not found' });
 
@@ -172,7 +114,7 @@ export const getTodoById = async (req, res) => {
 export const updateTodo = async (req, res) => {
   try {
     const { id, title, content, startDate, dueDate } = req.body;
-    const todo = await Todo.findOneAndUpdate(
+    const todo = await TodoModel.findOneAndUpdate(
       { _id: id },
       { title, content, startDate, dueDate },
       { new: true }
@@ -191,7 +133,7 @@ export const updateTodo = async (req, res) => {
 export const searchTodo = async (req, res) => {
   try {
     const { title, content, category } = req.body;
-    const todos = await Todo.find({
+    const todos = await TodoModel.find({
       title: { $regex: title, $options: 'i' },
       content: { $regex: content, $options: 'i' },
       category: { $regex: category, $options: 'i' },
@@ -210,13 +152,13 @@ export const completeTodo = async (req, res) => {
   if (!req.params.id)
     return res.status(400).json({ message: 'Todo id is required' });
   try {
-    const todo = await Todo.findOne({
+    const todo = await TodoModel.findOne({
       _id: req.params.id,
       isDeleted: false,
       user: user._id,
     });
     if (!todo) return res.status(404).json({ message: 'Todo not found' });
-    const completedTodo = await Todo.findByIdAndUpdate(
+    const completedTodo = await TodoModel.findByIdAndUpdate(
       { _id: req.params.id },
       { isCompleted: !todo.isCompleted },
       { new: true }
@@ -245,7 +187,7 @@ export const generateTodos = async (req, res) => {
       });
     }
 
-    const result = await Todo.insertMany(todos);
+    const result = await TodoModel.insertMany(todos);
 
     res.json({
       message: '1000 Todos generated successfully',

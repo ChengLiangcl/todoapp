@@ -14,6 +14,7 @@ interface AuthRequest<T = any, Q = any> extends Request {
   files?: {
     [fieldname: string]: MulterFile[];
   };
+  parms?: T;
 }
 
 export default AuthRequest;

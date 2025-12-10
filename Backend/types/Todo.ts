@@ -2,6 +2,7 @@
 import { Types } from 'mongoose';
 
 export type Todo = {
+  _id?: string;
   title: string;
   content: string;
   startDate: Date;

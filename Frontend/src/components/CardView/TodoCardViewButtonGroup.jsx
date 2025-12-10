@@ -9,7 +9,8 @@ import { useDispatch } from 'react-redux';
 import Button from '@components/Button/Button';
 import ModalButton from '@components/ModalButton/ModalButton';
 import TodoModal from '@components/Todo/TodoModal';
-const TodoCardViewButtonGroup = ({ tagName, id }) => {
+
+const TodoCardViewButtonGroup = ({ tagName, id, todo }) => {
   const { modal, openDialog, setDialog } = useModal();
   const dispatch = useDispatch();
 
@@ -135,6 +136,7 @@ const TodoCardViewButtonGroup = ({ tagName, id }) => {
           action={updarteTodoAction}
           id={id}
           title="Update Todo Item"
+          todoData={todo}
           dialogConfig={{
             title: 'Are you sure you want to exit update creation?',
             content: 'Click Yes to create a record, No to exit the modal',

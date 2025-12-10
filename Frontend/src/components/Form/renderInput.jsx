@@ -10,6 +10,7 @@ export default function RenderInput({
   disabled = false,
 }) {
   const { Icon, name, type } = field;
+
   return (
     <Box
       key={name}

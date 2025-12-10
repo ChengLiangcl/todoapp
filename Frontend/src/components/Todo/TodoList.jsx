@@ -1,10 +1,8 @@
 import Grid from '@mui/material/Grid';
 import CardView from '../CardView/CardView';
 import Paper from '@mui/material/Paper';
-import { useSelector } from 'react-redux';
 
-const TodoList = ({ todos, onDelete }) => {
-  const { todos: todoList } = useSelector((state) => state.todo);
+const TodoList = ({ todos, onDelete, onUpdate }) => {
   const setTag = (todo) => {
     const dueDate = new Date(todo.dueDate);
     const currentDate = new Date();
@@ -32,24 +30,22 @@ const TodoList = ({ todos, onDelete }) => {
         },
       }}
     >
-      <Grid container justifyContent="flex-start">
-        {todoList?.map((todo, index) => {
+      <Grid container justifyContent="flex-start" spacing={3}>
+        {todos?.map((todo, index) => {
           const [tagName, color] = setTag(todo);
           return (
-            <Grid item xs={12} sm={6} md={4} key={index}>
-              <CardView
-                id={todo._id}
-                title={todo.title}
-                content={todo.content}
-                startDate={todo.startDate}
-                dueDate={todo.dueDate}
-                onDelete={() => onDelete(todo._id)}
-                onUpdate={() => onDelete(todo._id)}
-                todo={todo}
-                color={color}
-                tagName={tagName}
-              />
-            </Grid>
+            <CardView
+              id={todo._id}
+              title={todo.title}
+              content={todo.content}
+              startDate={todo.startDate}
+              dueDate={todo.dueDate}
+              onDelete={() => onDelete(todo._id)}
+              onUpdate={() => onUpdate(todo._id)}
+              todo={todo}
+              color={color}
+              tagName={tagName}
+            />
           );
         })}
       </Grid>

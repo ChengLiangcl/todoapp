@@ -47,13 +47,18 @@ export const ModalProvider = ({ children }) => {
   });
 
   // Open modal
-  const openModal = (onConfirm = null, disableForm = false) => {
+  const openModal = ({
+    onConfirm = null,
+    disableForm = false,
+    modalId = null,
+  } = {}) => {
     setModal((prev) => {
       return {
         ...prev,
         isOpen: true,
         onConfirm,
         isFormDisabled: disableForm,
+        modalId,
       };
     });
   };

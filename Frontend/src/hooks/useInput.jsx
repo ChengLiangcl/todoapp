@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 const useInput = (initialValue, validators) => {
-  const [inputs, setInputs] = useState(initialValue);
+  const [inputs, setInputs] = useState(initialValue || {});
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 

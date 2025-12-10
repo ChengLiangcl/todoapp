@@ -1,19 +1,18 @@
-import React, { useEffect } from 'react';
-import { Grid } from '@mui/material';
+// TodoForm.js
+import React from 'react';
+import { Grid, Box } from '@mui/material';
 import ModalFormWrapper from '@components/ModalFormWrapper/ModalFormWrapper';
-import todoValidator from '@components/Form/todoForm/todoValidator';
 import RenderInput from '@components/Form/renderInput';
+import todoValidator from '@components/Form/todoForm/todoValidator';
 import {
   todoFormFields,
   datePickerInput,
 } from '@components/Form/todoForm/todoFormConfig';
-import { Box } from '@mui/system';
 import { useModal } from '@context/ModalContext';
 import PhotoUploader from '@components/PhotoUploader/PhotoUploader';
 import FileUploader from '@components/FileUploader/FileUploader';
 import useInput from '@hooks/useInput';
 
-// Shallow comparison to avoid unnecessary resets
 export default function TodoForm({ initialValues, action }) {
   const {
     inputs,
@@ -25,13 +24,7 @@ export default function TodoForm({ initialValues, action }) {
   } = useInput(initialValues, todoValidator);
 
   const { closeModal, modal } = useModal();
-
-  // Update inputs only when initialValues changes
-  useEffect(() => {
-    if (!initialValues || Object.keys(initialValues).length === 0) return;
-
-    setInputs(initialValues);
-  }, [initialValues, setInputs]);
+  if (!initialValues) return null;
 
   const submitHandler = async (e) => {
     e.preventDefault();

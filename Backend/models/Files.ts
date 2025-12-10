@@ -33,4 +33,5 @@ const fileSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model('File', fileSchema);
+const File = mongoose.model('File', fileSchema);
+export default File;

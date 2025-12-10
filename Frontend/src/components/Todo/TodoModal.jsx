@@ -1,37 +1,48 @@
 import React, { useMemo } from 'react';
-import TodoForm from '../Form/todoForm/todoForm';
 import { Box } from '@mui/material';
 import Modal from '../Modal/Modal';
+import TodoForm from '../Form/todoForm/todoForm';
 import { useModal } from '../../context/ModalContext';
-import { useSelector } from 'react-redux';
 
-const TodoModal = ({ title, id = null, action }) => {
+const TodoModal = ({ title, action, todoData }) => {
   const { modal } = useModal();
-  const todos = useSelector((state) => state.todo);
 
-  const currentTodo = useMemo(() => {
-    if (!id) return {};
-    const result = todos?.todos?.find((todo) => todo._id === id);
-    return result
-      ? {
-          title: result.title,
-          content: result.content,
-          startDate: result.startDate,
-          dueDate: result.dueDate,
-          files: result.files.filter(
-            (file) => file.type === 'Todo support document'
-          ),
-          coverPhoto: result.files.filter(
-            (file) => file.type === 'Cover photo'
-          ),
-        }
-      : {};
-  }, [id, todos?.todos]);
+  const initialValues = useMemo(() => {
+    if (!modal.modalId)
+      return {
+        title: '',
+        content: '',
+        startDate: '',
+        dueDate: '',
+        files: [],
+        coverPhoto: [],
+      };
+
+    if (Object.keys(todoData).length === 0)
+      return {
+        title: '',
+        content: '',
+        startDate: '',
+        dueDate: '',
+        files: [],
+        coverPhoto: [],
+      };
+
+    return {
+      title: todoData.title || '',
+      content: todoData.content || '',
+      startDate: todoData.startDate || '',
+      dueDate: todoData.dueDate || '',
+      files:
+        todoData.files?.filter((f) => f.type === 'Todo support document') || [],
+      coverPhoto: todoData.files?.filter((f) => f.type === 'Cover photo') || [],
+    };
+  }, [modal.modalId, todoData]);
 
   return (
     <Modal title={title} isOpen={modal.isOpen}>
       <Box sx={{ p: 2 }}>
-        <TodoForm initialValues={currentTodo} action={action} />
+        <TodoForm initialValues={initialValues} action={action} />
       </Box>
     </Modal>
   );

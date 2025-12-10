@@ -9,28 +9,45 @@ import {
 } from './todoThunks';
 import { saveState, getState } from '../../util/helper';
 
-const cardViewInitialState = {};
 const todoSlice = createSlice({
   name: 'todos',
   initialState: {
     todos: [],
-    page: getState('page') || {},
-    totalPage: getState('totalPage') || 0,
-    limit: getState('limit') || 0,
+    todoWithDifferentStatusAndViews: getState(
+      'todoWithDifferentStatusAndViews'
+    ) || {
+      all: {
+        cardView: { page: 1, totalPages: 0, limit: 0, todos: [], total: 0 },
+      },
+    },
     deletedTodo: '',
     loading: false,
     error: null,
-    paginationPage: {},
     todoView: getState('todoView') || 'cardView',
-    total: getState('total') || 0,
+    currentStatus: getState('currentStatus') || 'all',
   },
   reducers: {
     deleteTodoItem: (state, action) => {
       state.todos = state.todos.filter((todo) => todo._id !== action.payload);
     },
+    setCurrentStatus: (state, action) => {
+      const tab = action.payload || 'All';
+      state.currentStatus = tab;
+    },
     setPaginationPage: (state, action) => {
       const { status, page } = action.payload;
-      state.paginationPage[status] = page;
+
+      state.currentStatus = status;
+      state.todoWithDifferentStatusAndViews = {
+        ...state.todoWithDifferentStatusAndViews,
+        [status]: {
+          ...state.todoWithDifferentStatusAndViews[status],
+          [state.todoView]: {
+            ...state.todoWithDifferentStatusAndViews[status]?.[state.todoView],
+            page,
+          },
+        },
+      };
     },
     clearDeletedTodo: (state) => {
       state.deletedTodo = '';
@@ -49,18 +66,31 @@ const todoSlice = createSlice({
       })
       .addCase(fetchTodos.fulfilled, (state, action) => {
         state.loading = false;
-        const { data, totalPages, page, limit, total } = action.payload;
-        state.todos = data;
-        state.totalPage = totalPages;
-        state.limit = limit;
-        state.total = total;
-        state.page = page;
+        const {
+          page,
+          limit,
+          total,
+          totalPages,
+          status,
+          data: todos,
+        } = action.payload;
 
-        saveState('page', state.page);
-        saveState('total', state.total);
-        saveState('totalPage', state.totalPage);
-        saveState('limit', state.limit);
-        saveState('todos', state.todos);
+        state.todoWithDifferentStatusAndViews = {
+          ...state.todoWithDifferentStatusAndViews,
+          [status]: {
+            ...state.todoWithDifferentStatusAndViews[status],
+            [state.todoView]: {
+              ...state.todoWithDifferentStatusAndViews[status]?.[
+                state.todoView
+              ],
+              currentPage: page,
+              limit,
+              totalPages,
+              todos,
+              total,
+            },
+          },
+        };
       })
       .addCase(fetchTodos.rejected, (state, action) => {
         state.loading = false;
@@ -122,5 +152,6 @@ export const {
   setPaginationPage,
   clearDeletedTodo,
   setTodoView,
+  setCurrentStatus,
 } = todoSlice.actions;
 export default todoSlice.reducer;

@@ -16,12 +16,12 @@ export default function PaginationTable({
   page,
 }) {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [dataRows, setDataRows] = React.useState(rows);
+  const [dataRows, setDataRows] = React.useState(rows || []);
 
+  console.log(dataRows);
   React.useEffect(() => {
-    setDataRows(rows);
+    setDataRows(rows || []);
   }, [rows]);
-  console.log(page);
 
   const handleChangePage = (event, newPage) => {
     const actualPage = newPage + 1;
